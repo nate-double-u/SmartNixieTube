@@ -31,7 +31,7 @@ nistHost = socket.gethostbyname(nistHostName)
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.sendto('', (nistHost, nistPort))
 
-BLU_PIN = 22
+BLU_PIN = 23  # no.8
 
 
 class CoffeeCounter(object):
@@ -40,6 +40,7 @@ class CoffeeCounter(object):
     _currentDay = 0
     _lcd = Adafruit_CharLCD()
     _ledOn = False
+    _timer = 0;
 
     def __init__(self):
         """this is the set-up phase, get things ready!"""
@@ -59,7 +60,7 @@ class CoffeeCounter(object):
 
         self._set_system_time(time_tuple)  # we have NIST time so set the system clock so we don't have to ask again.
 
-        # light sensor setup
+        # light sensor setup # no.7
         GPIO.setup(BLU_PIN, GPIO.OUT)
 
         # Boot info
@@ -128,26 +129,31 @@ class CoffeeCounter(object):
         return parser.parse(dateString)
 
 
-    def _msr_time(self, msr_pin):
-        reading = 0
-        GPIO.setup(msr_pin, GPIO.OUT)
-        GPIO.output(msr_pin, GPIO.LOW)
-        time.sleep(0.1)
-        starttime = time.time()  # note start time
+    def _msr_time(self, msr_pin):  # no.6
+        # reading = 0
+        # GPIO.setup(msr_pin, GPIO.OUT)
+        # GPIO.output(msr_pin, GPIO.LOW)
+        # time.sleep(0.1)
+        # starttime = time.time()  # note start time
+        GPIO.setmode(GPIO.BCM)
         GPIO.setup(msr_pin, GPIO.IN)
-        while (GPIO.input(msr_pin) == GPIO.LOW):
-            reading += 1
-        endtime = time.time()  # note end time
-        total_time = 1000 * (endtime - starttime)
-        return total_time  # reading in milliseconds
+        # while (GPIO.input(msr_pin) == GPIO.LOW):
+        #     reading += 1
+        # endtime = time.time()  # note end time
+        # total_time = 1000 * (endtime - starttime)
+        # return total_time  # reading in milliseconds
+        return GPIO.input(msr_pin)
+
 
     def _run_cmd(self, cmd):
         p = Popen(cmd, shell = True, stdout = PIPE)
         output = p.communicate()[0]
         return output
 
-    def _getLightSensorValue(self):
-        return (1 / self._msr_time(BLU_PIN) / 6.0)
+    def _getIRSensorValue(self):  # no.5
+
+
+        return self._msr_time(BLU_PIN)
 
     def incrementDailyCoffeeCount(self):
         if self._currentDay == datetime.datetime.now().day:
@@ -164,56 +170,60 @@ class CoffeeCounter(object):
     def loop(self):
         """this is the main loop--runs forever."""
         while True:  # Go!
-            self._ledOn = False
 
-            # what's the sensor telling us
-            lightSensorVal = self._getLightSensorValue()
+            # what's the sensor telling us # no.1
+            irSensorVal = 0  # self._getIRSensorValue()
 
             # Set the display
             self._lcd.setCursor(0, 1)
             if DEBUG:
-                self._lcd.message('{:.3f} Count {:d}\n'.format(lightSensorVal, self._dailyCoffeeCount))
+                self._lcd.message('{:.3f} Count {:d}\n'.format(irSensorVal, self._dailyCoffeeCount))  # no.2
             else:
                 self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
 
-            # count the coffees! (check for the light, and increment the counter when it goes off.
-            while lightSensorVal > 0.1:
-                self._ledOn = True
-                # light on, wait till it goes off to add 1 to the daily coffee count
-                self._lcd.setCursor(0, 1)
-                if DEBUG:
-                    self._lcd.message('{:.3f} Count {:d}\n'.format(lightSensorVal, self._dailyCoffeeCount))
-                else:
-                    self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
-                lightSensorVal = self._getLightSensorValue()
-                sleep(0.2)
+            # # count the coffees! (check for the light, and increment the counter when it goes off. # no.3
+            # if irSensorVal == 1:
+            #
+            #     # light on, wait till it goes off to add 1 to the daily coffee count
+            #     # self._lcd.setCursor(0, 1)
+            #     # if DEBUG:
+            #     #     self._lcd.message('{:.3f} Count {:d}\n'.format(irSensorVal, self._dailyCoffeeCount))
+            #     # else:
+            #     #     self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
+            #     self._timer += 1
+            # else:
+            #     self._timer = 0
+            #
+            # if self._timer == 0 and not self._ledOn:
+            #     self._ledOn = True
+            #     self.incrementDailyCoffeeCount()
+            #
+            # self._lcd.setCursor(0, 1)
+            # if DEBUG:
+            #     self._lcd.message('{:.3f} Count {:d}\n'.format(irSensorVal, self._dailyCoffeeCount))  # no.4
+            # else:
+            #     self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
+            #
+            # # send the info to the backend
+            timestamp = str(datetime.datetime.now())
 
-            if self._ledOn == True:
-                self._ledOn = False
-                self.incrementDailyCoffeeCount()
-                self._lcd.setCursor(0, 1)
-                if DEBUG:
-                    self._lcd.message('{:.3f} Count {:d}\n'.format(lightSensorVal, self._dailyCoffeeCount))
-                else:
-                    self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
+            coffeeJson = json.dumps(
+                {
+                    "total": self._dailyCoffeeCount,
+                    "id": self._machineId,
+                    "timestamp": timestamp
+                }
+            )
 
-                # send the info to the backend
-                timestamp = str(datetime.datetime.now())
-
-                coffeeJson = json.dumps(
-                    {
-                        "total": self._dailyCoffeeCount,
-                        "id": self._machineId,
-                        "timestamp": timestamp
-                    }
-                )
-
-                result = self.__firebase.post('/coffee', coffeeJson)
-                if DEBUG:
-                    print result
+            result = self.__firebase.post('/coffee', coffeeJson)
+            if DEBUG:
+                print result
 
             # give the system some time before the next goround
             sleep(0.3)
+
+            if self._timer > 100:
+                self._ledOn = False
 
 
 def main():
