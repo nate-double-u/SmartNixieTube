@@ -202,25 +202,30 @@ class CoffeeCounter(object):
             # count the coffees! (check for the light, and increment the counter when it goes off.
             if self._cupPresent and sensorVal > 5:
                 self.incrementDailyCoffeeCount()
-            if sensorVal < 5:
-                self._cupPresent = True
-            else:
-                self._cupPresent = False
 
                 #send the info to the backend
                 timestamp = str(datetime.datetime.now())
 
-                coffeeJson = json.dumps(
-                    {
-                        "total": self._dailyCoffeeCount,
-                        "id": self._machineId,
-                        "timestamp": timestamp
-                    }
-                )
+                # coffeeJson = json.dumps(
+                #     {
+                #         'total': self._dailyCoffeeCount,
+                #         'id': self._machineId,
+                #         'timestamp': timestamp
+                #     }
+                # )
+
+                coffeeJson = {'total': self._dailyCoffeeCount,
+                              'id': self._machineId,
+                              'timestamp': timestamp}
 
                 result = self.__firebase.post('/coffee', coffeeJson)
                 if DEBUG:
                     print result
+
+            if sensorVal < 5:
+                self._cupPresent = True
+            else:
+                self._cupPresent = False
 
             self._lcd.setCursor(0, 1)
             if DEBUG:
