@@ -42,7 +42,7 @@ class CoffeeCounter(object):
     _dailyCoffeeCount = 0
     _currentDay = 0
     _lcd = Adafruit_CharLCD()
-    _ledOn = False
+    _cupPresent = False
     _timer = 0
 
     def __init__(self):
@@ -81,6 +81,16 @@ class CoffeeCounter(object):
 
         # setup backend
         self.__firebase = firebase.FirebaseApplication('https://amber-torch-2593.firebaseio.com/', None)
+
+        # setup GPIO stuff
+
+        # Use BCM GPIO references
+        # instead of physical pin numbers
+        GPIO.setmode(GPIO.BCM)
+
+        # Set pins as output and input
+        GPIO.setup(GPIO_TRIGGER, GPIO.OUT)  # Trigger
+        GPIO.setup(GPIO_ECHO, GPIO.IN)      # Echo
 
     def _set_system_time(self, time_tuple):
 
@@ -133,15 +143,7 @@ class CoffeeCounter(object):
         output = p.communicate()[0]
         return output
 
-    def _getIRSensorValue(self):  # no.5
-        # Use BCM GPIO references
-        # instead of physical pin numbers
-        GPIO.setmode(GPIO.BCM)
-
-        # Set pins as output and input
-        GPIO.setup(GPIO_TRIGGER, GPIO.OUT)  # Trigger
-        GPIO.setup(GPIO_ECHO, GPIO.IN)      # Echo
-
+    def _getSensorValue(self):  # no.5
         # Set trigger to False (Low)
         GPIO.output(GPIO_TRIGGER, False)
 
@@ -188,41 +190,41 @@ class CoffeeCounter(object):
         while True:  # Go!
 
             # what's the sensor telling us # no.1
-            irSensorVal = self._getIRSensorValue()
+            sensorVal = self._getSensorValue()
 
             # Set the display
             self._lcd.setCursor(0, 1)
             if DEBUG:
-                self._lcd.message('{:.3f} Count {:d}\n'.format(irSensorVal, self._dailyCoffeeCount))
+                self._lcd.message('{:.3f} Count {:d}\n'.format(sensorVal, self._dailyCoffeeCount))
             else:
                 self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
 
             # count the coffees! (check for the light, and increment the counter when it goes off.
-            if self._ledOn and irSensorVal > 5:
+            if self._cupPresent and sensorVal > 5:
                 self.incrementDailyCoffeeCount()
-            if irSensorVal < 5:
-                self._ledOn = True
+            if sensorVal < 5:
+                self._cupPresent = True
             else:
-                self._ledOn = False
+                self._cupPresent = False
 
-                # send the info to the backend
-                # timestamp = str(datetime.datetime.now())
-                #
-                # coffeeJson = json.dumps(
-                #     {
-                #         "total": self._dailyCoffeeCount,
-                #         "id": self._machineId,
-                #         "timestamp": timestamp
-                #     }
-                # )
-                #
-                # result = self.__firebase.post('/coffee', coffeeJson)
-                # if DEBUG:
-                #     print result
+                #send the info to the backend
+                timestamp = str(datetime.datetime.now())
+
+                coffeeJson = json.dumps(
+                    {
+                        "total": self._dailyCoffeeCount,
+                        "id": self._machineId,
+                        "timestamp": timestamp
+                    }
+                )
+
+                result = self.__firebase.post('/coffee', coffeeJson)
+                if DEBUG:
+                    print result
 
             self._lcd.setCursor(0, 1)
             if DEBUG:
-                self._lcd.message('{:.3f} Count {:d}\n'.format(irSensorVal, self._dailyCoffeeCount))
+                self._lcd.message('{:.3f} Count {:d}\n'.format(sensorVal, self._dailyCoffeeCount))
             else:
                 self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
 
