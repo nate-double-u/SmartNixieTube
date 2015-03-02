@@ -11,9 +11,11 @@ import ctypes
 import ctypes.util
 import time
 import datetime
+import operator
 import math
 import json
 
+from multiprocessing import Pool
 from firebase import firebase
 from dateutil import parser
 
@@ -33,17 +35,22 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.sendto('', (nistHost, nistPort))
 
 # Define GPIO to use on Pi
-GPIO_TRIGGER = 22
-GPIO_ECHO = 27
+GPIO_TRIGGER_1 = 22
+GPIO_ECHO_1 = 27
+
+GPIO_TRIGGER_2 = 17
+GPIO_ECHO_2 = 4
 
 
 class CoffeeCounter(object):
-    _machineId = '1'
     _dailyCoffeeCount = 0
+    _totalCoffeeCount = 0
     _currentDay = 0
     _lcd = Adafruit_CharLCD()
-    _cupPresent = False
-    _timer = 0
+    _cupPresent_1 = False
+    _cupPresent_2 = False
+    _timer_1 = 0
+    _timer_2 = 0
 
     def __init__(self):
         """this is the set-up phase, get things ready!"""
@@ -81,7 +88,17 @@ class CoffeeCounter(object):
 
         # setup backend
         self.__firebase = firebase.FirebaseApplication('https://amber-torch-2593.firebaseio.com/', None)
+        obj = self.__firebase.get('/coffee', None)
+        # obj = sorted(obj, key=lambda x: x.timestamp, reverse=False)
+        if obj is None:
+            self._totalCoffeeCount = 0
+        else:
+            self._totalCoffeeCount = len(obj)
+        # print obj
+        # obj_last = (obj.keys()[len(obj)-1])
+        # self._dailyCoffeeCount = obj[obj_last]['total']
 
+        # print obj[obj_last]['total']
         # setup GPIO stuff
 
         # Use BCM GPIO references
@@ -89,8 +106,10 @@ class CoffeeCounter(object):
         GPIO.setmode(GPIO.BCM)
 
         # Set pins as output and input
-        GPIO.setup(GPIO_TRIGGER, GPIO.OUT)  # Trigger
-        GPIO.setup(GPIO_ECHO, GPIO.IN)      # Echo
+        GPIO.setup(GPIO_TRIGGER_1, GPIO.OUT)  # Trigger
+        GPIO.setup(GPIO_TRIGGER_2, GPIO.OUT)  # Trigger
+        GPIO.setup(GPIO_ECHO_1, GPIO.IN)      # Echo
+        GPIO.setup(GPIO_ECHO_2, GPIO.IN)      # Echo
 
     def _set_system_time(self, time_tuple):
 
@@ -143,22 +162,29 @@ class CoffeeCounter(object):
         output = p.communicate()[0]
         return output
 
-    def _getSensorValue(self):  # no.5
+    def _getSensorValue(self, id_num):  # no.5
         # Set trigger to False (Low)
-        GPIO.output(GPIO_TRIGGER, False)
+        if id_num == 1:
+            trigger = GPIO_TRIGGER_1
+            echo = GPIO_ECHO_1
+        elif id_num == 2:
+            trigger = GPIO_TRIGGER_2
+            echo = GPIO_ECHO_2
+
+        GPIO.output(trigger, False)
 
         # Allow module to settle
         time.sleep(0.5)
 
         # Send 10us pulse to trigger
-        GPIO.output(GPIO_TRIGGER, True)
+        GPIO.output(trigger, True)
         time.sleep(0.00001)
-        GPIO.output(GPIO_TRIGGER, False)
+        GPIO.output(trigger, False)
         start = time.time()
-        while GPIO.input(GPIO_ECHO) == 0:
+        while GPIO.input(echo) == 0:
             start = time.time()
 
-        while GPIO.input(GPIO_ECHO) == 1:
+        while GPIO.input(echo) == 1:
             stop = time.time()
 
         # Calculate pulse length
@@ -170,7 +196,7 @@ class CoffeeCounter(object):
 
         # That was the distance there and back so halve the value
         distance /= 5.4
-        print "Ultrasonic Measurement: " + str(distance) + " inch"
+        print "Coffee Machine #"+str(id_num)+": " + str(distance) + " inch"
         return distance
 
     def incrementDailyCoffeeCount(self):
@@ -178,6 +204,7 @@ class CoffeeCounter(object):
             if DEBUG:
                 print "self.__dailyCoffeeCount += 1"
             self._dailyCoffeeCount += 1
+            self._totalCoffeeCount += 1
 
         else:
             if DEBUG:
@@ -190,17 +217,51 @@ class CoffeeCounter(object):
         while True:  # Go!
 
             # what's the sensor telling us # no.1
-            sensorVal = self._getSensorValue()
+            pool = Pool()
+            #sensorVal_1 = self._getSensorValue(1)
+            sensorVal_2 = self._getSensorValue(2)
 
-            # Set the display
-            self._lcd.setCursor(0, 1)
-            if DEBUG:
-                self._lcd.message('{:.3f} Count {:d}\n'.format(sensorVal, self._dailyCoffeeCount))
-            else:
-                self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
+            # # Set the display
+            # self._lcd.setCursor(0, 1)
+            # if DEBUG:
+            #     self._lcd.message('{:.3f} Count {:d}\n'.format(sensorVal, self._dailyCoffeeCount))
+            # else:
+            #     self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
 
-            # count the coffees! (check for the light, and increment the counter when it goes off.
-            if self._cupPresent and sensorVal > 5:
+            #count the coffees! (check for the light, and increment the counter when it goes off.
+            # if self._cupPresent_1 and (sensorVal_1 > 5 or sensorVal_1 < 2.5) and self._timer_1 > 10:
+            #     self.incrementDailyCoffeeCount()
+            #
+            #     #send the info to the backend
+            #     timestamp = str(datetime.datetime.now())
+            #
+            #     # coffeeJson = json.dumps(
+            #     #     {
+            #     #         'total': self._dailyCoffeeCount,
+            #     #         'id': self._machineId,
+            #     #         'timestamp': timestamp
+            #     #     }
+            #     # )
+            #
+            #     coffeeJson = {'daily': self._dailyCoffeeCount,
+            #                   'id': '1',
+            #                   'timestamp': timestamp,
+            #                   'total': self._totalCoffeeCount
+            #                   }
+            #
+            #     result = self.__firebase.post('/coffee', coffeeJson)
+            #     if DEBUG:
+            #         print result
+            #
+            # if 2.5 < sensorVal_1 < 5:
+            #     self._cupPresent_1 = True
+            #     self._timer_1 += 1
+            #     print self._timer_1
+            # else:
+            #     self._cupPresent_1 = False
+            #     self._timer_1 = 0
+
+            if self._cupPresent_2 and (sensorVal_2 > 5 or sensorVal_2 < 2.5) and self._timer_2 > 10:
                 self.incrementDailyCoffeeCount()
 
                 #send the info to the backend
@@ -214,24 +275,29 @@ class CoffeeCounter(object):
                 #     }
                 # )
 
-                coffeeJson = {'total': self._dailyCoffeeCount,
-                              'id': self._machineId,
-                              'timestamp': timestamp}
+                coffeeJson = {'daily': self._dailyCoffeeCount,
+                              'id': '2',
+                              'timestamp': timestamp,
+                              'total': self._totalCoffeeCount
+                              }
 
                 result = self.__firebase.post('/coffee', coffeeJson)
                 if DEBUG:
                     print result
 
-            if sensorVal < 5:
-                self._cupPresent = True
+            if 2.5 < sensorVal_2 < 5:
+                self._cupPresent_2 = True
+                self._timer_2 += 1
+                print self._timer_2
             else:
-                self._cupPresent = False
+                self._cupPresent_2 = False
+                self._timer_2 = 0
 
-            self._lcd.setCursor(0, 1)
-            if DEBUG:
-                self._lcd.message('{:.3f} Count {:d}\n'.format(sensorVal, self._dailyCoffeeCount))
-            else:
-                self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
+            # self._lcd.setCursor(0, 1)
+            # if DEBUG:
+            #     self._lcd.message('{:.3f} Count {:d}\n'.format(sensorVal, self._dailyCoffeeCount))
+            # else:
+            #     self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount))
 
 
 
