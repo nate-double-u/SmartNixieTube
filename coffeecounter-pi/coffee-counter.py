@@ -41,7 +41,7 @@ GPIO_ECHO_1 = 27
 GPIO_TRIGGER_2 = 17
 GPIO_ECHO_2 = 4
 
-TIMEOUT = 0;
+TIMEOUT = 10
 
 
 class CoffeeCounter(object):
@@ -204,11 +204,14 @@ class CoffeeCounter(object):
         # Allow module to settle
         time.sleep(0.5)
 
+        stop = 0
+
         # Send 10us pulse to trigger
         GPIO.output(trigger, True)
         time.sleep(0.00001)
         GPIO.output(trigger, False)
         start = time.time()
+
         while GPIO.input(echo) == 0:
             start = time.time()
 
@@ -261,8 +264,9 @@ class CoffeeCounter(object):
             if datetime.datetime.now().minute == 0 and self._reset is False:
                 self._dailyCoffeeCount_2 = self._dailyCoffeeCount_1 = 0
                 self._reset = True
-            if datetime.datetime.now().minute == 1:
-                self._reset = False
+            if self._reset is True:
+                if datetime.datetime.now().minute == 1:
+                    self._reset = False
 
             #count the coffees! (check for the light, and increment the counter when it goes off.
             if self._cupPresent_1 and (sensorVal_1 > 5 or sensorVal_1 < 2.5) and self._timer_1 > TIMEOUT:
