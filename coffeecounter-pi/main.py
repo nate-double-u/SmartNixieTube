@@ -3,21 +3,22 @@ __copyright__ = 'Copyright 2015 AKQA inc. All Rights Reserved'
 
 import sys
 
+from timeUtil import TimeUtil
 from coffeecounter import CoffeeCounter
-import RPi.GPIO as GPIO
 
+import RPi.GPIO as GPIO
 
 def main():
     """main"""
-
-    coffeeMachine1 = CoffeeCounter()
-    coffeeMachine2 = CoffeeCounter()
+    # main setup
+    time = TimeUtil()
+    coffeeMachine1 = CoffeeCounter(1)
+    coffeeMachine2 = CoffeeCounter(2)
 
     # main loop
     while True:
         coffeeMachine1.count()
         coffeeMachine2.count()
-
 
 if __name__ == '__main__':
     try:

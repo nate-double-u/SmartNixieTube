@@ -9,7 +9,7 @@
 # nathan.waddington@akqa.com
 #
 
-from time import sleep
+from timeUtil import sleep
 
 
 class Adafruit_CharLCD(object):
