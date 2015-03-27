@@ -2,7 +2,7 @@ __author__ = 'Nathan Waddington  & Mark Liang'
 __email__ = 'nathan.waddington@akqa.com'
 __copyright__ = 'Copyright 2014 AKQA inc. All Rights Reserved'
 
-from time import sleep
+# from time import sleep
 
 import time
 import datetime
@@ -17,6 +17,9 @@ GPIO_ECHO = [27, 4]
 
 TIMEOUT = 0
 
+from Adafruit_CharLCD import Adafruit_CharLCD  # 1
+
+
 class CoffeeCounter(object):
     _dailyCoffeeCount = [0, 0, 0]  # [total, id#1, id#2]
     _totalCoffeeCount = 0
@@ -25,6 +28,8 @@ class CoffeeCounter(object):
     _timer = 0
     _reset = False
     _id = 0
+
+    _lcd = Adafruit_CharLCD() # 2
 
     def __init__(self, machineID):  # global
         """this is the set-up phase, get things ready!"""
@@ -48,6 +53,13 @@ class CoffeeCounter(object):
         GPIO.setup(GPIO_TRIGGER[self._id - 1], GPIO.OUT)  # Trigger
         GPIO.setup(GPIO_ECHO[self._id - 1], GPIO.IN)  # Echo
 
+        # 3
+        self._lcd.begin(16, 2)
+        self._lcd.clear()
+        self._lcd.message('AKQA JavaCounter\n')
+
+        self._lcd.setCursor(0, 1)
+        self._lcd.message('                ')
 
     def _getSensorValue(self, id_num):  # individual function
         # Set trigger to False (Low)
@@ -126,6 +138,9 @@ class CoffeeCounter(object):
 
             result = self.__firebase.post('/coffee', coffeeJson)
 
+            self._lcd.setCursor(0, 1)
+            self._lcd.message('Count {:d}\n'.format(self._dailyCoffeeCount[0]))
+
         if 2.5 < sensorVal < 5:
             self._cupPresent = True
             self._timer += 1
@@ -134,6 +149,6 @@ class CoffeeCounter(object):
             self._timer = 0
 
         # give the system some time before the next goround
-        sleep(0.1)
+        time.sleep(0.1)
 
 
