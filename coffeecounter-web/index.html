@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  	<title>AKQA Coffee Counter</title>
+
+    <!-- Latest compiled and minified CSS -->
+  	<link rel="stylesheet" href="css/bootstrap.css">
+
+  	<script src="https://cdn.firebase.com/js/client/2.2.1/firebase.js"></script>
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  	<script src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+  	<script src="js/splitflap.js"></script>
+  	<script src="js/plugin.js/Chart.js"></script>
+  	<script src="js/bundle.js"></script>
+  	<script src="https:////cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
+  	<!-- <link type="text/css" rel="stylesheet" href="/css/reset.css" /> -->
+  	<link type="text/css" rel="stylesheet" href="css/splitflap.css" />
+  	<style type="text/css">
+  		@import url('https://fonts.googleapis.com/css?family=Oswald');
+  	</style>
+</head>
+	<body>
+		<header>
+			<h1>AKQA Coffee Counter</h1>
+		</header>
+		<!-- <a href="https://github.com/conartist6/splitflap"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a> -->
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<p>Total Amount Since 01 Mar 2015</p>
+					<div id="splitflap_total"></div></br>
+					<p>Today's Amount</p>
+					<div id="splitflap_daily"></div>
+				</div>
+			</div>
+		</div>
+
+		<hr class="large"></hr></br></br>
+		<p id="time"></p>
+		<form id="print" action="javascript:">
+		    <input id="daily" type="text" name="text" size="6" style="display:none"></input>
+		    <input id="total" type="text" name="text" size="6" style="display:none"></input>
+		    <input id="timestamp" type="text" name="text" size="6" style="display:none"></input>
+		    <input id="hourly" type="text" name="text" size="6" style="display:none"></input>
+		    <input id="id" type="text" name="text" size="6" style="display:none"></input>
+		</form>
+			<br><br>
+			<canvas id="myChart" width="800" height="400" style="width:90%"></canvas>
+			<br><br><br><br>
+		<footer>
+			<a href="http://www.akqa.com" target="_blank"><img src="img/akqa.png" width="auto" height="60">
+		</footer>
+		
+		<script type="text/javascript">//<![CDATA[ 
+		// Get the context of the canvas element we want to select
+
+
+
+		var ctx = $("#myChart").get(0).getContext("2d");
+		var data = {
+		    labels: ["8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm"],
+		    datasets: [
+		        {
+		            label: "Machine #1",
+		            fillColor: "rgba(21,21,21,1)",
+		            data: [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		        },
+		        {
+		            label: "Machine #2",
+		            fillColor: "rgba(34,34,34,1)",
+		            data: [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		        }
+		    ]
+		};
+		var option = {
+		    //Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+		    scaleBeginAtZero : true,
+
+		    //Boolean - Whether grid lines are shown across the chart
+		    scaleShowGridLines : true,
+
+		    //String - Colour of the grid lines
+		    scaleGridLineColor : "rgba(0,0,0,.05)",
+
+		    //Number - Width of the grid lines
+		    scaleGridLineWidth : 1,
+
+		    //Boolean - Whether to show horizontal lines (except X axis)
+		    scaleShowHorizontalLines: true,
+
+		    //Boolean - Whether to show vertical lines (except Y axis)
+		    scaleShowVerticalLines: true,
+
+		    //Boolean - If there is a stroke on each bar
+		    barShowStroke : true,
+
+		    //Number - Pixel width of the bar stroke
+		    barStrokeWidth : 3,
+
+		    //Number - Spacing between each of the X value sets
+		    barValueSpacing : 5,
+
+		    //Number - Spacing between data sets within X values
+		    barDatasetSpacing : 1,
+
+		    //String - A legend template
+		    legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+
+		}
+
+		var myBarChart = new Chart(ctx).Bar(data, option);
+
+		$(window).load(function(){
+			var disp_d = $("#splitflap_daily").splitflap({
+					glyphSet: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+					defaultSegments: 3
+					});
+			var disp_t = $("#splitflap_total").splitflap({
+					glyphSet: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+					defaultSegments: 4
+					});
+
+			$("#splitflap_total").addClass('small');//set size
+			//setTimeout(function(){disp.splitflap("value", "000")}, 190	0);
+		    $("#print").on("submit", function(e)
+			{
+			  	var id = $('#print input#id').val();
+			    var timestamp = $('#print input#timestamp').val();
+			    
+			    var input = $("#print input#daily");
+			    disp_d.splitflap("value", input.val());
+			    if(input.val() == '000'){
+			    	for(var i = 0; i < 13; i++){
+			    		data['datasets'][0]['data'][i] = 0;
+						data['datasets'][1]['data'][i] = 0;
+			    	}
+			    }
+			    else {
+				    var hourly = $('#print input#hourly').val();
+					hourly = JSON.parse(hourly); //parse back to JSON
+					console.log(hourly);
+
+				    for (var key in hourly){
+				    	var hr = key;
+				    	//console.log(hr);
+				    	var m1 = hourly[key].split(',')[0];
+				    	var m2 = hourly[key].split(',')[1];
+						//console.log(m1);
+						//console.log(m2);
+				    	data['datasets'][0]['data'][hr-8] = m1;
+						data['datasets'][1]['data'][hr-8] = m2;
+				    }
+				}
+			    input.val("");
+
+			    var input = $("#print input#total");
+			    disp_t.splitflap("value", input.val());
+			    input.val("");
+			    e.preventDefault();
+				myBarChart = new Chart(ctx).Bar(data, option)
+			});
+
+		  	var k = $(window).width()/4;
+		  	if(k > 150) k = 150;
+	      	$('#splitflap_daily').css({'font-size':k});
+		  	$('#splitflap_daily .segment').css({'width':k});
+		  	$(window).on('resize', function(){
+		  		var k = $(window).width()/4;
+		  		if(k > 150) k = 150;
+				$('canvas').css({'width':'90%', 'height':'auto'});
+				myBarChart = new Chart(ctx).Bar(data, option)
+				$('#splitflap_daily').css({'font-size':k});
+				$('#splitflap_daily .segment').css({'width':k});
+		  	});
+		});//]]>  
+		</script>
+	</body>
+</html>
