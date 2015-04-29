@@ -38,7 +38,7 @@ class TimeUtil(object):
                        0,  # millisecond
         )
         self._set_system_time(time_tuple)  # we have NIST time so set the system clock so we don't have to ask again.
-        print "init time"
+        print("init time")
         # Boot info
         cmd = "ip addr show wlan0 | grep inet | awk '{print $2}' | cut -d/ -f1"  # get the device ip address
 
@@ -61,7 +61,7 @@ class TimeUtil(object):
     def _getNistTime(self):  # time-stuffs
         buf = s.recvfrom(2048)[0]
         if len(buf) != 4:
-            print 'len(buf) != 4'
+            print('len(buf) != 4')
             sys.exit(1)  # TODO: Handle this exception better
 
         secs = struct.unpack("!I", buf)[0]

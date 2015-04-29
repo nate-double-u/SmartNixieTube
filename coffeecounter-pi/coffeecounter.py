@@ -93,7 +93,7 @@ class CoffeeCounter(object):
 
         # That was the distance there and back so halve the value
         distance /= 5.4
-        print "Coffee Machine #" + str(id_num) + ": " + str(distance) + " inch"
+        print ("Coffee Machine #" + str(id_num) + ": " + str(distance) + " inch")
         return distance
 
     def incrementDailyCoffeeCount(self, id_num):  # individual function
@@ -150,5 +150,3 @@ class CoffeeCounter(object):
 
         # give the system some time before the next goround
         time.sleep(0.1)
-
-
