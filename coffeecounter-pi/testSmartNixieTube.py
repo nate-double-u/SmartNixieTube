@@ -147,5 +147,18 @@ class testSmartNixieTube(unittest.TestCase):
         tube = SmartNixieTube()
         self.assertEquals(tube.generateCommandString(), '$-,N,N,000,000,000,000')
 
+        tube2 = SmartNixieTube('9', False, False, 128, 0, 255, 255)
+        self.assertEquals(tube2.generateCommandString(), '$9,N,N,128,000,255,255')
+
+        tube3 = SmartNixieTube('5', False, False, 28, 0, 10, 1)
+        self.assertEquals(tube3.generateCommandString(), '$5,N,N,028,000,010,001')
+
+    def test_turnOff(self):
+        tube = SmartNixieTube('9', False, False, 128, 0, 255, 255)
+        self.assertEquals(tube.generateCommandString(), '$9,N,N,128,000,255,255')
+
+        tube.turnOff()
+        self.assertEquals(tube.generateCommandString(), '$-,N,N,000,000,000,000')
+
 if __name__ == '__main__':
     unittest.main()

@@ -46,6 +46,15 @@ class SmartNixieTube():
         else:
             self.blue = blue  # Blue controls the blue PWM value for the RGB LED.
 
+    def turnOff(self):
+        self.digit='-'
+        self.leftdecimalpoint=False
+        self.rightdecimalpoint=False
+        self.brightness=0
+        self.red=0
+        self.green=0
+        self.blue=0
+
     def convertDigitToStringWithLeadingZeros(self, number):
         return '%03d' % number
 
@@ -68,10 +77,11 @@ class SmartNixieTube():
         )
 
 
-class SmartNixieTubeDisplay(Exception):
+class SmartNixieTubeDisplay():
     """
     Nixie tube display, this class controls 1 or more tubes connected in series.
     for more info about these nixie tube display drivers, visit http://switchmodedesign.com/products/smart-nixie-tube
+
     serial data format:
     $[DIGIT],[LEFT DECIMAL POINT],[RIGHT DECIMAL POINT],[BRIGHTNESS],[RED],[GREEN],[BLUE]!
     """
