@@ -17,7 +17,7 @@ class testSmartNixieTube(unittest.TestCase):
 
     def test_init_digit_in_range(self):
         tube = SmartNixieTube(digit='0')
-        self.assertEquals('0', tube.digit)
+        self.assertEqual('0', tube.digit)
 
     def test_init_digits_out_of_range(self):
         tube = SmartNixieTube(digit='=', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0,
@@ -99,44 +99,44 @@ class testSmartNixieTube(unittest.TestCase):
 
     def test_init_defaults(self):
         tube = SmartNixieTube()
-        self.assertEquals('-', tube.digit)
-        self.assertEquals(False, tube.leftDecimalPoint)
-        self.assertEquals(False, tube.rightDecimalPoint)
-        self.assertEquals(0, tube.brightness)
-        self.assertEquals(0, tube.blue)
-        self.assertEquals(0, tube.green)
-        self.assertEquals(0, tube.red)
+        self.assertEqual('-', tube.digit)
+        self.assertEqual(False, tube.leftDecimalPoint)
+        self.assertEqual(False, tube.rightDecimalPoint)
+        self.assertEqual(0, tube.brightness)
+        self.assertEqual(0, tube.blue)
+        self.assertEqual(0, tube.green)
+        self.assertEqual(0, tube.red)
 
     def test_convertDigitToStringWithLeadingZeros(self):
         tube = SmartNixieTube()
-        self.assertEquals('000', tube.convertDigitToStringWithLeadingZeros(0))
-        self.assertEquals('001', tube.convertDigitToStringWithLeadingZeros(1))
-        self.assertEquals('010', tube.convertDigitToStringWithLeadingZeros(10))
-        self.assertEquals('100', tube.convertDigitToStringWithLeadingZeros(100))
+        self.assertEqual('000', tube.convertDigitToStringWithLeadingZeros(0))
+        self.assertEqual('001', tube.convertDigitToStringWithLeadingZeros(1))
+        self.assertEqual('010', tube.convertDigitToStringWithLeadingZeros(10))
+        self.assertEqual('100', tube.convertDigitToStringWithLeadingZeros(100))
 
     def test_convertFromBoolToYN(self):
         tube = SmartNixieTube()
-        self.assertEquals(tube.convertFromBooltoYN(True), 'Y')
-        self.assertEquals(tube.convertFromBooltoYN(False), 'N')
+        self.assertEqual(tube.convertFromBooltoYN(True), 'Y')
+        self.assertEqual(tube.convertFromBooltoYN(False), 'N')
 
     def test_generateCommandString(self):
         tube = SmartNixieTube()
-        self.assertEquals('$-,N,N,000,000,000,000', tube.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,000', tube.generateCommandString())
 
         tube2 = SmartNixieTube('9', False, False, 128, 0, 255, 255)
-        self.assertEquals('$9,N,N,128,000,255,255', tube2.generateCommandString())
+        self.assertEqual('$9,N,N,128,000,255,255', tube2.generateCommandString())
 
         tube3 = SmartNixieTube('5', False, False, 28, 0, 10, 1)
-        self.assertEquals('$5,N,N,028,000,010,001', tube3.generateCommandString())
+        self.assertEqual('$5,N,N,028,000,010,001', tube3.generateCommandString())
 
     def test_turnOff(self):
         # turn on anything, check that it's on
         tube = SmartNixieTube('9', False, False, 128, 0, 255, 255)
-        self.assertEquals('$9,N,N,128,000,255,255', tube.generateCommandString())
+        self.assertEqual('$9,N,N,128,000,255,255', tube.generateCommandString())
 
         # test that the generate command string sends out zeros and a dash after turnOff()
         tube.turnOff()
-        self.assertEquals('$-,N,N,000,000,000,000', tube.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,000', tube.generateCommandString())
 
     def test_SmartNixieTube_initialisation(self):
         numberOfTubesInDisplay = 3
@@ -265,13 +265,15 @@ class testSmartNixieTube(unittest.TestCase):
 
     def test_init_display_brightness_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=-1))  # this should fail
+            self.assertRaises(ValueError,
+                              SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=-1))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Brightness must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=256))  # this should fail
+            self.assertRaises(ValueError,
+                              SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=256))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Brightness must be between 0-255', str(e))
@@ -310,7 +312,8 @@ class testSmartNixieTube(unittest.TestCase):
             self.assertEqual('Green must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, green=256))  # this should fail
+            self.assertRaises(ValueError,
+                              SmartNixieTubeDisplay(numberOfTubesInDisplay=1, green=256))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Green must be between 0-255', str(e))
@@ -407,5 +410,15 @@ class testSmartNixieTube(unittest.TestCase):
         self.assertEqual('$-,N,N,000,000,000,128$-,N,N,000,000,000,128$-,N,N,000,000,000,128!',
                          display3.generateCommandString())
 
+    # Testing serial port...
+    def test_init_serialPort(self):
+        try:
+            self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serialPort=-1))  # this should fail
+            self.fail("Didn't raise TypeError")
+        except TypeError as e:
+            self.assertEqual('serialPort must be of type str', str(e))
+
+
 if __name__ == '__main__':
+    # unit tests
     unittest.main()

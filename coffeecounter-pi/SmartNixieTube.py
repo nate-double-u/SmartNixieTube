@@ -3,7 +3,7 @@ __email__ = 'nathan.waddington@akqa.com'
 __copyright__ = 'Copyright 2014 AKQA inc. All Rights Reserved'
 
 from math import log10
-
+import serial
 
 class SmartNixieTube:
     """Data structure for the nixie tube display. Represents 1 tube.
@@ -158,7 +158,11 @@ class SmartNixieTubeDisplay:
     $[DIGIT],[LEFT DECIMAL POINT],[RIGHT DECIMAL POINT],[BRIGHTNESS],[RED],[GREEN],[BLUE]!
     """
 
-    def __init__(self, numberOfTubesInDisplay, brightness=0, red=0, green=0, blue=0):
+    def __init__(self, numberOfTubesInDisplay, serialPort='', brightness=0, red=0, green=0, blue=0):
+        # serial port: /dev/cu.usbserial-A9QHHRFJ
+        self.serialPort = serialPort
+        self.port = serial.Serial()
+
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
         self.tubes = []
 
@@ -178,6 +182,17 @@ class SmartNixieTubeDisplay:
 
         # Blue controls the blue PWM value for the RGB LEDs on the whole display.
         self.blue = blue
+
+    @property
+    def serialPort(self):
+        return self.__serialPort
+
+    @serialPort.setter
+    def serialPort(self, value):
+        if type(value) is not str:
+            raise TypeError('serialPort must be of type str')
+        else:
+            self.__serialPort = value
 
     @property
     def numberOfTubesInDisplay(self):
@@ -274,3 +289,24 @@ class SmartNixieTubeDisplay:
             for tube in self.tubes:
                 tube.digit = displayNumber[i]
                 i += 1
+
+    def openSerialPort(self):
+        """
+        Default serial port settings for the Smart Nixie Tube:
+        Baud Rate: 115200 baud
+        Data Bits: 8
+        Parity Bits: None
+        Stop Bits: 1
+        """
+        try:
+            self.port = serial.Serial(self.serialPort, baudrate='11500')  #, bytesize=8, parity=None, stopbits=1)
+            self.port.open()
+        except:
+            raise AssertionError('open port error')
+
+    def sendCommand(self):
+        try:
+            print(bytearray(self.generateCommandString(), 'ascii'))
+            self.port.write(self.generateCommandString().encode())
+        except:
+            raise AssertionError('serial write error')
