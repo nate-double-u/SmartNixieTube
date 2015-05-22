@@ -26,8 +26,8 @@ class testSmartNixieTube(unittest.TestCase):
         try:
             self.assertRaises(AssertionError, SmartNixieTubeDisplay(numberOfTubesInDisplay))  # this should fail
             self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Must have one or more tubes.', e.message)
+        except:
+            pass
 
     def test_SmartNixieTube_initialisation_with_negative_tubes(self):
         numberOfTubesInDisplay = -1
@@ -35,70 +35,90 @@ class testSmartNixieTube(unittest.TestCase):
         try:
             self.assertRaises(AssertionError, SmartNixieTubeDisplay(numberOfTubesInDisplay))  # this should fail
             self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Must have one or more tubes.', e.message)
+        except:
+            pass
+
+    def test_init_digit_in_range(self):
+        tube = SmartNixieTube(digit='0')
+        self.assertEquals(tube.digit, '0')
+
+    def test_init_digits_out_of_range(self):
+        tube = SmartNixieTube(digit='=', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0,
+                              red=0, green=0,
+                              blue=0)
+        self.assertEqual(tube.digit, '-')  # tube turned off if send something out of bounds.
+
+    def test_init_digits_not_a_number(self):
+        tube = SmartNixieTube(digit='A', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0,
+                              red=0, green=0,
+                              blue=0)
+        self.assertEqual(tube.digit, '-')  # tube turned off if send something out of bounds.
+
+    def test_init_leftDecimalPoint_wrong_type(self):
+        try:
+            self.assertRaises(TypeError, SmartNixieTube(leftdecimalpoint=-1))  # this should fail
+            self.fail("Didn't raise TypeError")
+        except TypeError as e:
+            self.assertEqual(str(e), 'Left decimal point must be of type bool')
+
+    def test_init_rightDecimalPoint_wrong_type(self):
+        try:
+            self.assertRaises(TypeError, SmartNixieTube(rightdecimalpoint=-1))  # this should fail
+            self.fail("Didn't raise TypeError")
+        except TypeError as e:
+            self.assertEqual(str(e), 'Right decimal point must be of type bool')
 
     def test_init_brightness_out_of_range(self):
         try:
-            self.assertRaises(AssertionError, SmartNixieTube(brightness=-1))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Brightness must be between 0-255', e.message)
+            self.assertRaises(ValueError, SmartNixieTube(brightness=-1))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Brightness must be between 0-255')
+
         try:
-            self.assertRaises(AssertionError, SmartNixieTube(brightness=256))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Brightness must be between 0-255', e.message)
+            self.assertRaises(ValueError, SmartNixieTube(brightness=256))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Brightness must be between 0-255')
 
     def test_init_red_out_of_range(self):
         try:
             self.assertRaises(AssertionError, SmartNixieTube(red=-1))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Red must be between 0-255', e.message)
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Red must be between 0-255')
+
         try:
             self.assertRaises(AssertionError, SmartNixieTube(red=256))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Red must be between 0-255', e.message)
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Red must be between 0-255')
 
     def test_init_blue_out_of_range(self):
         try:
             self.assertRaises(AssertionError, SmartNixieTube(blue=-1))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Blue must be between 0-255', e.message)
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Blue must be between 0-255')
+
         try:
             self.assertRaises(AssertionError, SmartNixieTube(blue=256))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Blue must be between 0-255', e.message)
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Blue must be between 0-255')
 
     def test_init_green_out_of_range(self):
         try:
             self.assertRaises(AssertionError, SmartNixieTube(green=-1))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Green must be between 0-255', e.message)
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Green must be between 0-255')
+
         try:
             self.assertRaises(AssertionError, SmartNixieTube(green=256))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Green must be between 0-255', e.message)
-
-    def test_init_leftDecimalPoint_wrong_type(self):
-        try:
-            self.assertRaises(AssertionError, SmartNixieTube(leftdecimalpoint=-1))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Left decimal point must be of type bool', e.message)
-
-    def test_init_rightDecimalPoint_wrong_type(self):
-        try:
-            self.assertRaises(AssertionError, SmartNixieTube(rightdecimalpoint=-1))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Right decimal point must be of type bool', e.message)
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual(str(e), 'Green must be between 0-255')
 
     def test_init_defaults(self):
         tube = SmartNixieTube()
@@ -109,27 +129,6 @@ class testSmartNixieTube(unittest.TestCase):
         self.assertEquals(tube.blue, 0)
         self.assertEquals(tube.green, 0)
         self.assertEquals(tube.red, 0)
-
-    def test_init_digit_in_range(self):
-        tube = SmartNixieTube(digit='0')
-        self.assertEquals(tube.digit, '0')
-
-    def test_init_digits_out_of_range(self):
-        try:
-            self.assertRaises(AssertionError,
-                              SmartNixieTube(digit='=', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0,
-                                             red=0, green=0,
-                                             blue=0))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Values for digit must be one of "0123456789-"', e.message)
-
-    def test_init_digits_not_a_number(self):
-        try:
-            self.assertRaises(AssertionError, SmartNixieTube(digit='A'))  # this should fail
-            self.fail("Didn't raise AssertionError")
-        except AssertionError, e:
-            self.assertEquals('Values for digit must be one of "0123456789-"', e.message)
 
     def test_convertDigitToStringWithLeadingZeros(self):
         tube = SmartNixieTube()
@@ -159,6 +158,7 @@ class testSmartNixieTube(unittest.TestCase):
 
         tube.turnOff()
         self.assertEquals(tube.generateCommandString(), '$-,N,N,000,000,000,000')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -9,51 +9,121 @@ class SmartNixieTube():
 
     def __init__(self, digit='-', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0, red=0, green=0,
                  blue=0):
+
+        # This is the digit you would like to display on the Nixie Tube.
+        self.digit = digit
+
+        # This is the control character for the left decimal point of the Nixie Tube.
+        self.leftDecimalPoint = leftdecimalpoint
+
+        # This is the control character for the right decimal point of the Nixie Tube.
+        self.rightDecimalPoint = rightdecimalpoint
+
+        # Brightness controls the PWM (brightness) value for the Nixie Tube.
+        self.brightness = brightness
+
+        # Red controls the red PWM value for the RGB LED.
+        self.red = red
+
+        # Green controls the green PWM value for the RGB LED.
+        self.green = green
+
+        # Blue controls the blue PWM value for the RGB LED.
+        self.blue = blue
+
+    @property
+    def digit(self):
+        """This is the digit you would like to display on the Nixie Tube."""
+        return self.__digit
+
+    @digit.setter
+    def digit(self, value):
         # digit can be 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, or - to turn the Nixie Tube off.
-        if digit not in '-0123456789':
-            raise AssertionError('Values for digit must be one of "0123456789-"')
+        if value not in '-0123456789':
+            self.__digit = '-'
         else:
-            self.digit = digit  # This is the digit you would like to display on the Nixie Tube.
+            self.__digit = value  # This is the digit you would like to display on the Nixie Tube.
 
-        if type(leftdecimalpoint) is not bool:
-            raise AssertionError('Left decimal point must be of type bool')
-        else:
-            # This is the control character for the left decimal point of the Nixie Tube.
-            self.leftDecimalPoint = leftdecimalpoint
+    @property
+    def leftDecimalPoint(self):
+        """This is the control character for the left decimal point of the Nixie Tube."""
+        return self.__leftDecimalPoint
 
-        if type(rightdecimalpoint) is not bool:
-            raise AssertionError('Right decimal point must be of type bool')
+    @leftDecimalPoint.setter
+    def leftDecimalPoint(self, value):
+        if type(value) is not bool:
+            raise TypeError('Left decimal point must be of type bool')
         else:
-            # This is the control character for the right decimal point of the Nixie Tube.
-            self.rightDecimalPoint = rightdecimalpoint
+            self.__leftDecimalPoint = value
 
-        if brightness < 0 or brightness > 255:
-            raise AssertionError('Brightness must be between 0-255')
-        else:
-            self.brightness = brightness  # Brightness controls the PWM (brightness) value for the Nixie Tube.
+    @property
+    def rightDecimalPoint(self):
+        """This is the control character for the left decimal point of the Nixie Tube."""
+        return self.__rightDecimalPoint
 
-        if red < 0 or red > 255:
-            raise AssertionError('Red must be between 0-255')
+    @rightDecimalPoint.setter
+    def rightDecimalPoint(self, value):
+        if type(value) is not bool:
+            raise TypeError('Right decimal point must be of type bool')
         else:
-            self.red = red  # Red controls the red PWM value for the RGB LED.
-        if green < 0 or green > 255:
-            raise AssertionError('Green must be between 0-255')
-        else:
-            self.green = green  # Green controls the green PWM value for the RGB LED.
+            self.__rightDecimalPoint = value
 
-        if blue < 0 or blue > 255:
-            raise AssertionError('Blue must be between 0-255')
+    @property
+    def brightness(self):
+        """Brightness controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__brightness
+
+    @brightness.setter
+    def brightness(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Brightness must be between 0-255')
         else:
-            self.blue = blue  # Blue controls the blue PWM value for the RGB LED.
+            self.__brightness = value
+
+    @property
+    def red(self):
+        """Red controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__red
+
+    @red.setter
+    def red(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Red must be between 0-255')
+        else:
+            self.__red = value
+
+    @property
+    def blue(self):
+        """Blue controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__blue
+
+    @blue.setter
+    def blue(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Blue must be between 0-255')
+        else:
+            self.__blue = value
+
+    @property
+    def green(self):
+        """Green controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__green
+
+    @green.setter
+    def green(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Green must be between 0-255')
+        else:
+            self.__green = value
 
     def turnOff(self):
-        self.digit='-'
-        self.leftdecimalpoint=False
-        self.rightdecimalpoint=False
-        self.brightness=0
-        self.red=0
-        self.green=0
-        self.blue=0
+        self.digit = '-'
+        self.leftdecimalpoint = False
+        self.rightdecimalpoint = False
+        self.brightness = 0
+        self.red = 0
+        self.green = 0
+        self.blue = 0
 
     def convertDigitToStringWithLeadingZeros(self, number):
         return '%03d' % number
