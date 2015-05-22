@@ -2,6 +2,8 @@ __author__ = 'Nathan Waddington'
 __email__ = 'nathan.waddington@akqa.com'
 __copyright__ = 'Copyright 2014 AKQA inc. All Rights Reserved'
 
+from math import log10
+
 
 class SmartNixieTube:
     """Data structure for the nixie tube display. Represents 1 tube.
@@ -157,7 +159,41 @@ class SmartNixieTubeDisplay:
     """
 
     def __init__(self, numberOfTubesInDisplay):
-        if numberOfTubesInDisplay < 1:
-            raise AssertionError('Must have one or more tubes.')
-
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
+        self.tubes = []
+
+        for i in range(self.numberOfTubesInDisplay):
+            self.tubes.append(SmartNixieTube())
+
+    @property
+    def numberOfTubesInDisplay(self):
+        return self.__numberOfTubesInDisplay
+
+    @numberOfTubesInDisplay.setter
+    def numberOfTubesInDisplay(self, value):
+        if value < 1:
+            raise ValueError('numberOfTubesInDisplay must be greater than 0')
+        else:
+            self.__numberOfTubesInDisplay = value
+
+    def generateCommandString(self):
+        commandString = ''
+
+        for tube in self.tubes:
+            commandString = tube.generateCommandString() + commandString
+
+        commandString = commandString + '!'  # add the latch command at the end
+
+        return commandString
+
+    def setDisplayNumber(self, number):
+        if number < 0:
+            raise ValueError('Display number must be positive')
+        elif int(log10(number)) + 1 > self.numberOfTubesInDisplay:
+            raise ValueError('Not enough tubes to display all digits')
+        else:
+            displayNumber = str(number).zfill(self.numberOfTubesInDisplay)
+            i = 0
+            for tube in self.tubes:
+                tube.digit = displayNumber[i]
+                i += 1
