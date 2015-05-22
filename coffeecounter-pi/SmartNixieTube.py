@@ -3,7 +3,7 @@ __email__ = 'nathan.waddington@akqa.com'
 __copyright__ = 'Copyright 2014 AKQA inc. All Rights Reserved'
 
 
-class SmartNixieTube():
+class SmartNixieTube:
     """Data structure for the nixie tube display. Represents 1 tube.
     for more info about these nixie tube display drivers, visit http://switchmodedesign.com/products/smart-nixie-tube"""
 
@@ -147,7 +147,7 @@ class SmartNixieTube():
         )
 
 
-class SmartNixieTubeDisplay():
+class SmartNixieTubeDisplay:
     """
     Nixie tube display, this class controls 1 or more tubes connected in series.
     for more info about these nixie tube display drivers, visit http://switchmodedesign.com/products/smart-nixie-tube
