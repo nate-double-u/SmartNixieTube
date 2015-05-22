@@ -158,12 +158,26 @@ class SmartNixieTubeDisplay:
     $[DIGIT],[LEFT DECIMAL POINT],[RIGHT DECIMAL POINT],[BRIGHTNESS],[RED],[GREEN],[BLUE]!
     """
 
-    def __init__(self, numberOfTubesInDisplay):
+    def __init__(self, numberOfTubesInDisplay, brightness=0, red=0, green=0, blue=0):
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
         self.tubes = []
 
+        # setup the individual tubes in the display
         for i in range(self.numberOfTubesInDisplay):
             self.tubes.append(SmartNixieTube())
+
+        # Set the global display values
+        # Brightness controls the PWM (brightness) value for the whole Nixie Tube Display.
+        self.brightness = brightness
+
+        # Red controls the red PWM value for the RGB LEDs on the whole display.
+        self.red = red
+
+        # Green controls the green PWM value for the RGB LEDs on the whole display.
+        self.green = green
+
+        # Blue controls the blue PWM value for the RGB LEDs on the whole display.
+        self.blue = blue
 
     @property
     def numberOfTubesInDisplay(self):
@@ -176,13 +190,76 @@ class SmartNixieTubeDisplay:
         else:
             self.__numberOfTubesInDisplay = value
 
+    @property
+    def brightness(self):
+        """Brightness controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__brightness
+
+    @brightness.setter
+    def brightness(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Brightness must be between 0-255')
+        else:
+            self.__brightness = value
+            for i in range(self.numberOfTubesInDisplay):
+                self.tubes[i].brightness = self.brightness
+
+    @property
+    def red(self):
+        """Red controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__red
+
+    @red.setter
+    def red(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Red must be between 0-255')
+        else:
+            self.__red = value
+            for i in range(self.numberOfTubesInDisplay):
+                self.tubes[i].red = self.red
+
+    @property
+    def blue(self):
+        """Blue controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__blue
+
+    @blue.setter
+    def blue(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Blue must be between 0-255')
+        else:
+            self.__blue = value
+            for i in range(self.numberOfTubesInDisplay):
+                self.tubes[i].blue = self.blue
+
+    @property
+    def green(self):
+        """Green controls the PWM (brightness) value for the Nixie Tube."""
+        return self.__green
+
+    @green.setter
+    def green(self, value):
+        if value < 0 or value > 255:
+            raise ValueError('Green must be between 0-255')
+        else:
+            self.__green = value
+            for i in range(self.numberOfTubesInDisplay):
+                self.tubes[i].green = self.green
+
     def generateCommandString(self):
+        """The first set of data ($1,N,N,128,000,000,255) is going to be passed all the way to the rightmost Smart Nixie
+         Tube. The last set of data ($4,N,N,128,000,000,255) is going to be in the leftmost Smart Nixie Tube. Lastly, we
+         send the ! in order to tell all of the Smart Nixie Tubes that the data is ready to be latched into their
+         display buffer."""
+
         commandString = ''
 
+        # The serial data is passed from left to right.
         for tube in self.tubes:
             commandString = tube.generateCommandString() + commandString
 
-        commandString = commandString + '!'  # add the latch command at the end
+        # add the latch command at the end to tell the display when the command is done.
+        commandString = commandString + '!'
 
         return commandString
 

@@ -263,5 +263,149 @@ class testSmartNixieTube(unittest.TestCase):
         self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000$9,N,N,000,000,000,000!',
                          display3.generateCommandString())
 
+    def test_init_display_brightness_out_of_range(self):
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=-1))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Brightness must be between 0-255', str(e))
+
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=256))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Brightness must be between 0-255', str(e))
+
+    def test_init_display_red_out_of_range(self):
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, red=-1))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Red must be between 0-255', str(e))
+
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, red=256))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Red must be between 0-255', str(e))
+
+    def test_init_display_blue_out_of_range(self):
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, blue=-1))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Blue must be between 0-255', str(e))
+
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, blue=256))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Blue must be between 0-255', str(e))
+
+    def test_init_display_green_out_of_range(self):
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, green=-1))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Green must be between 0-255', str(e))
+
+        try:
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, green=256))  # this should fail
+            self.fail("Didn't raise ValueError")
+        except ValueError as e:
+            self.assertEqual('Green must be between 0-255', str(e))
+
+    def test_init_display_brightness(self):
+        # set one tube
+        numberOfTubesInDisplay = 1
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display.brightness = 128
+        self.assertEqual('$-,N,N,128,000,000,000!', display.generateCommandString())
+
+        # set two tubes
+        numberOfTubesInDisplay = 2
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display2.brightness = 128
+        self.assertEqual('$-,N,N,128,000,000,000$-,N,N,128,000,000,000!', display2.generateCommandString())
+
+        # set three tubes
+        numberOfTubesInDisplay = 3
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display3.brightness = 128
+        self.assertEqual('$-,N,N,128,000,000,000$-,N,N,128,000,000,000$-,N,N,128,000,000,000!',
+                         display3.generateCommandString())
+
+    def test_init_display_red(self):
+        # set one tube
+        numberOfTubesInDisplay = 1
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display.red = 128
+        self.assertEqual('$-,N,N,000,128,000,000!', display.generateCommandString())
+
+        # set two tubes
+        numberOfTubesInDisplay = 2
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display2.red = 128
+        self.assertEqual('$-,N,N,000,128,000,000$-,N,N,000,128,000,000!', display2.generateCommandString())
+
+        # set three tubes
+        numberOfTubesInDisplay = 3
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display3.red = 128
+        self.assertEqual('$-,N,N,000,128,000,000$-,N,N,000,128,000,000$-,N,N,000,128,000,000!',
+                         display3.generateCommandString())
+
+    def test_init_display_green(self):
+        # set one tube
+        numberOfTubesInDisplay = 1
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display.green = 128
+        self.assertEqual('$-,N,N,000,000,128,000!', display.generateCommandString())
+
+        # set two tubes
+        numberOfTubesInDisplay = 2
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display2.green = 128
+        self.assertEqual('$-,N,N,000,000,128,000$-,N,N,000,000,128,000!', display2.generateCommandString())
+
+        # set three tubes
+        numberOfTubesInDisplay = 3
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display3.green = 128
+        self.assertEqual('$-,N,N,000,000,128,000$-,N,N,000,000,128,000$-,N,N,000,000,128,000!',
+                         display3.generateCommandString())
+
+    def test_init_display_blue(self):
+        # set one tube
+        numberOfTubesInDisplay = 1
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display.blue = 128
+        self.assertEqual('$-,N,N,000,000,000,128!', display.generateCommandString())
+
+        # set two tubes
+        numberOfTubesInDisplay = 2
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display2.blue = 128
+        self.assertEqual('$-,N,N,000,000,000,128$-,N,N,000,000,000,128!', display2.generateCommandString())
+
+        # set three tubes
+        numberOfTubesInDisplay = 3
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+
+        display3.blue = 128
+        self.assertEqual('$-,N,N,000,000,000,128$-,N,N,000,000,000,128$-,N,N,000,000,000,128!',
+                         display3.generateCommandString())
+
 if __name__ == '__main__':
     unittest.main()
