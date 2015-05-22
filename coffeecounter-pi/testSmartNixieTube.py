@@ -153,9 +153,11 @@ class testSmartNixieTube(unittest.TestCase):
         self.assertEquals(tube3.generateCommandString(), '$5,N,N,028,000,010,001')
 
     def test_turnOff(self):
+        # turn on anything, check that it's on
         tube = SmartNixieTube('9', False, False, 128, 0, 255, 255)
         self.assertEquals(tube.generateCommandString(), '$9,N,N,128,000,255,255')
 
+        # test that the generate command string sends out zeros and a dash after turnOff()
         tube.turnOff()
         self.assertEquals(tube.generateCommandString(), '$-,N,N,000,000,000,000')
 
