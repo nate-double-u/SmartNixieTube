@@ -7,7 +7,6 @@ import unittest
 from SmartNixieTube import SmartNixieTubeDisplay
 from SmartNixieTube import SmartNixieTube
 
-
 class testSmartNixieTube(unittest.TestCase):
     def setUp(self):
         pass
@@ -129,6 +128,14 @@ class testSmartNixieTube(unittest.TestCase):
         tube3 = SmartNixieTube('5', False, False, 28, 0, 10, 1)
         self.assertEqual('$5,N,N,028,000,010,001', tube3.generateCommandString())
 
+    def test_LeftDecimalCommandString(self):
+        tube = SmartNixieTube(leftdecimalpoint=True)
+        self.assertEqual('$-,Y,N,000,000,000,000', tube.generateCommandString())
+
+    def test_RightDecimalCommandString(self):
+        tube = SmartNixieTube(rightdecimalpoint=True)
+        self.assertEqual('$-,N,Y,000,000,000,000', tube.generateCommandString())
+
     def test_turnOff(self):
         # turn on anything, check that it's on
         tube = SmartNixieTube('9', False, False, 128, 0, 255, 255)
@@ -137,6 +144,14 @@ class testSmartNixieTube(unittest.TestCase):
         # test that the generate command string sends out zeros and a dash after turnOff()
         tube.turnOff()
         self.assertEqual('$-,N,N,000,000,000,000', tube.generateCommandString())
+
+
+class testSmartNixieTubeDisplay(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
 
     def test_SmartNixieTube_initialisation(self):
         numberOfTubesInDisplay = 3
@@ -222,7 +237,7 @@ class testSmartNixieTube(unittest.TestCase):
         except ValueError as e:
             self.assertEqual(str(e), 'Not enough tubes to display all digits')
 
-    def test_SmartNixieTubeDisplay_set_display_numbers(self):
+    def test_SmartNixieTubeDisplay_set_one_tube_display_numbers(self):
         # set one tube
         numberOfTubesInDisplay = 1
         display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
@@ -230,6 +245,7 @@ class testSmartNixieTube(unittest.TestCase):
         display.setDisplayNumber(9)
         self.assertEqual('$9,N,N,000,000,000,000!', display.generateCommandString())
 
+    def test_SmartNixieTubeDisplay_set_two_tube_display_numbers(self):
         # set two tubes
         numberOfTubesInDisplay = 2
         display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
@@ -243,6 +259,7 @@ class testSmartNixieTube(unittest.TestCase):
         display2.setDisplayNumber(99)
         self.assertEqual('$9,N,N,000,000,000,000$9,N,N,000,000,000,000!', display2.generateCommandString())
 
+    def test_SmartNixieTubeDisplay_set_three_tube_display_numbers(self):
         # set three tubes
         numberOfTubesInDisplay = 3
         display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
@@ -262,6 +279,59 @@ class testSmartNixieTube(unittest.TestCase):
         display3.setDisplayNumber(990)
         self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000$9,N,N,000,000,000,000!',
                          display3.generateCommandString())
+
+    # def test_SmartNixieTubeDisplay_set_too_many_digits_with_decimals(self):
+    #     numberOfTubesInDisplay = 1
+    #     display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+    #     try:
+    #         self.assertRaises(ValueError, display.setDisplayNumber(9.0))  # this should fail (too many digits)
+    #         self.fail("Didn't raise ValueError")
+    #     except ValueError as e:
+    #         self.assertEqual(str(e), 'Not enough tubes to display all digits')
+    #
+    # def test_SmartNixieTubeDisplay_set_one_tube_display_numbers_with_decimals(self):
+    #     # set one tube
+    #     numberOfTubesInDisplay = 1
+    #     display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+    #
+    #     display.setDisplayNumber(0.9)
+    #     self.assertEqual('$9,Y,N,000,000,000,000!', display.generateCommandString())
+    #
+    #
+    # def test_SmartNixieTubeDisplay_set_two_tube_display_numbers_with_decimals(self):
+    #     # set two tubes
+    #     numberOfTubesInDisplay = 2
+    #     display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+    #
+    #     display2.setDisplayNumber(0.9)
+    #     self.assertEqual('$9,Y,N,000,000,000,000$0,N,N,000,000,000,000!', display2.generateCommandString())
+    #
+    #     display2.setDisplayNumber(0.99)
+    #     self.assertEqual('$9,Y,N,000,000,000,000$9,N,N,000,000,000,000!', display2.generateCommandString())
+    #
+    #     display2.setDisplayNumber(9.9)
+    #     self.assertEqual('$9,N,N,000,000,000,000$9,Y,N,000,000,000,000!', display2.generateCommandString())
+    #
+    # def test_SmartNixieTubeDisplay_set_three_tube_display_numbers_with_decimals(self):
+    #     # set three tubes
+    #     numberOfTubesInDisplay = 3
+    #     display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
+    #
+    #     display3.setDisplayNumber(0.9)
+    #     self.assertEqual('$9,Y,N,000,000,000,000$0,N,N,000,000,000,000$0,N,N,000,000,000,000!',
+    #                      display3.generateCommandString())
+    #
+    #     display3.setDisplayNumber(99)
+    #     self.assertEqual('$9,N,N,000,000,000,000$9,N,N,000,000,000,000$0,N,N,000,000,000,000!',
+    #                      display3.generateCommandString())
+    #
+    #     display3.setDisplayNumber(909)
+    #     self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!',
+    #                      display3.generateCommandString())
+    #
+    #     display3.setDisplayNumber(990)
+    #     self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000$9,N,N,000,000,000,000!',
+    #                      display3.generateCommandString())
 
     def test_init_display_brightness_out_of_range(self):
         try:

@@ -284,7 +284,7 @@ class SmartNixieTubeDisplay:
         elif int(log10(number)) + 1 > self.numberOfTubesInDisplay:
             raise ValueError('Not enough tubes to display all digits')
         else:
-            displayNumber = str(number).zfill(self.numberOfTubesInDisplay)
+            displayNumber = str(number).zfill(self.numberOfTubesInDisplay)  # pad the display number with zeroes
             i = 0
             for tube in self.tubes:
                 tube.digit = displayNumber[i]
@@ -299,8 +299,7 @@ class SmartNixieTubeDisplay:
         Stop Bits: 1
         """
         try:
-            self.port = serial.Serial(self.serialPort, baudrate='11500')  #, bytesize=8, parity=None, stopbits=1)
-            self.port.open()
+            self.port = serial.Serial(self.serialPort, baudrate=11500)  #, bytesize=8, parity=None, stopbits=1)
         except:
             raise AssertionError('open port error')
 
