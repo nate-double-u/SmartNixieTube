@@ -289,19 +289,6 @@ class SmartNixieTubeDisplay:
                 tube.digit = displayNumber[i]
                 i += 1
 
-    def openSerialPort(self):
-        """
-        Default serial port settings for the Smart Nixie Tube:
-        Baud Rate: 115200 baud
-        Data Bits: 8
-        Parity Bits: None
-        Stop Bits: 1
-        """
-        try:
-            self.port = serial.Serial(self.serialPort, baudrate=11500)  #, bytesize=8, parity=None, stopbits=1)
-        except:
-            raise AssertionError('open port error')
-
     def sendCommand(self):
         try:
             print(bytearray(self.generateCommandString(), 'ascii'))
