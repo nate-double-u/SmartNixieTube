@@ -1,6 +1,5 @@
 __author__ = 'Nathan Waddington'
-__email__ = 'nathan.waddington@akqa.com'
-__copyright__ = 'Copyright 2014 AKQA inc. All Rights Reserved'
+__email__ = 'nathan_waddington@alumni.sfu.ca'
 
 from math import log10
 import serial
