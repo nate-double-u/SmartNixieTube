@@ -2,8 +2,9 @@ __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
 import unittest
-import subprocess
 import time
+import subprocess
+import re
 
 from SmartNixieTube import SmartNixieTubeDisplay
 from SmartNixieTube import SmartNixieTube
@@ -430,77 +431,58 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
                          display3.generateCommandString())
 
 
-import sys
-from subprocess import PIPE, Popen
-from threading  import Thread
-
-try:
-    from Queue import Queue, Empty
-except ImportError:
-    from queue import Queue, Empty  # python 3.x
-
 class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
-    def enqueue_output(self, out, queue):
-        for line in iter(out.readline, b''):
-            queue.put(line)
-        out.close()
-
     def setUp(self):
         # Create two serial ports and connect them.
-        args = ['/opt/local/bin/socat', '-d', '-d', 'pty,raw,echo=0', 'pty,raw,echo=0']
-        #self.socatProcess = subprocess.Popen(args, stdout=subprocess.PIPE, bufsize=1)
+        self.socatlf = 'socat_out.txt'
+        args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+        self.socatProcess = subprocess.Popen(args, stdout=subprocess.PIPE, bufsize=1)
 
-        ON_POSIX = 'posix' in sys.builtin_module_names
-
-        self.p = Popen(args, stdout=PIPE, bufsize=1, close_fds=ON_POSIX)
-        self.q = Queue()
-        self.t = Thread(target=self.enqueue_output, args=(self.p.stdout, self.q))
-        self.t.daemon = True # thread dies with the program
-        self.t.start()
-
-        #self.grepProcess = subprocess.Popen(['grep', 'dev'], stdin=self.socatProcess.stdout, stdout=subprocess.PIPE)
-
-        #output = self.grepProcess.communicate()[0]
-
-        # for line in self.socatProcess.communicate():
-        # print(line)
-
-        # print(self.socatProcess.communicate())
-
-        # self.exitval = 0
-        #
-        # self.socat = socat()
-        # if self.socat.wait():
-        #     LOG.warn("socat exited with code %d" % (self.socat.returncode))
-
-        # cli = CLI()
-        # cli.main()
-
-        time.sleep(0.3)
-
-        # msg = self.socatProcess.poll()
-        # print(msg)
+        time.sleep(0.1)  # give the system a moment to actually write the socat_out file.
 
 
     def tearDown(self):
-        print('killing socat[%d]' % self.p.pid)
-        #self.socatProcess.kill()
-        self.p.kill()
+        # kill the existing socat process so we don't have extra ports hanging around.
+        #  print('killing socat[%d]' % self.socatProcess.pid)
+        self.socatProcess.kill()
+
+        # reset output file
         pass
 
-    def testSocatProcessOutput(self):
-        # print (self.socatProcess.stdout.readline())
-        #print (self.socatProcess.stdout.readline()[0])
-        # out = self.socatProcess.stdout.readline()
-        # for line in out:
-        #     print(line)  # yield line
+    def get_serial_ports_from_socat_output(self, file):
+        file = open(file, 'r')  # file, readonly
+        lines = []
+
+        # get the lines with our ports in them.
+        for line in file:
+            if re.search('/dev/ttys', line):
+                lines.append(line)
+
+        print(lines)
+
+        # there should be two lines with ports in them.
+        if len(lines) == 2:
+            inputPort = lines[0].split()[6]
+            outputPort = lines[1].split()[6]
+        else:
+            raise ValueError('%s file malformed' % file)
+
+        print (inputPort, outputPort)
+
+        return inputPort, outputPort
+
+    def test_socat_serial_names_from_sample_output(self):
+        # read the socat sample output file
+        # socat_out_sample
+
         try:
-            line = self.q.get_nowait()  # or q.get(timeout=.1)
-        except Empty:
-            print('no output yet')
-        else:  # got line
-            # ... do something with line
-            print(line)
+            inputPort, outputPort = self.get_serial_ports_from_socat_output('socat_out_sample')
+        except ValueError as e:
+            pass
+
+        # get the two port names /dev/ttys046 and /dev/ttys047
+        self.assertEqual('/dev/ttys046', inputPort)
+        self.assertEqual('/dev/ttys047', outputPort)
 
     def test_init_serialPort(self):
         try:
@@ -508,22 +490,6 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('serialPort must be of type str', str(e))
-
-# class CLI:
-# def __init__(self):
-# self.exitval = 0
-#
-#     def main(self):
-#
-#         from socat import socat
-#
-#         # kick off the process, attach object to self; wait for process to exit
-#         self.socat = socat()
-#         if self.socat.wait():
-#             LOG.warn("socat exited with code %d" % (self.socat.returncode))
-#             self.exitval = 1
-#
-#         exit(self.exitval)
 
 if __name__ == '__main__':
     # run unit tests
