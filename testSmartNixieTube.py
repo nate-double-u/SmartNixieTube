@@ -7,6 +7,8 @@ import subprocess
 import re
 from os import remove
 
+import serial
+
 from SmartNixieTube import SmartNixieTubeDisplay
 from SmartNixieTube import SmartNixieTube
 
@@ -439,7 +441,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         self.socatProcess = subprocess.Popen(args, stdout=subprocess.PIPE, bufsize=1)
 
-        time.sleep(0.1)  # give the system a moment to actually write the socat_out file.
+        time.sleep(0.2)  # give the system a moment to actually write the socat_out file.
 
         # get the port names
         try:
@@ -447,16 +449,12 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         except ValueError as e:
             print(str(e))
 
-        print(self.inputPort, self.outputPort)
-
     def tearDown(self):
         # kill the existing socat process so we don't have extra ports hanging around.
-        #  print('killing socat[%d]' % self.socatProcess.pid)
         self.socatProcess.kill()
 
         # reset output file
         remove(self.socatlf)
-        pass
 
     def get_serial_ports_from_socat_output(self, file):
         file = open(file, 'r')  # file, readonly
@@ -482,10 +480,10 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
     def test_socat_serial_names_from_sample_output(self):
         # read the socat sample output file
-        # socat_out_sample
+        # test_socat_out_sample
 
         try:
-            inputPort, outputPort = self.get_serial_ports_from_socat_output('socat_out_sample')
+            inputPort, outputPort = self.get_serial_ports_from_socat_output('test_socat_out_sample')
         except ValueError as e:
             pass
 
@@ -499,6 +497,35 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('serialPort must be of type str', str(e))
+
+    def test_communication_between_comp_ports(self):
+        writeToPort = serial.Serial(
+            port=self.outputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        readFromPort = serial.Serial(
+            port=self.inputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        messageOut = 'hello, world!\n'
+        if writeToPort.isOpen() and readFromPort.isOpen():
+            writeToPort.write(messageOut.encode())
+            messageIn = readFromPort.readline(20)
+            self.assertEqual(messageOut.encode(), messageIn)
+        else:
+            self.fail('Serial ports failed to open')
+
+        writeToPort.close()
+        readFromPort.close()
+
 
 if __name__ == '__main__':
     # run unit tests
