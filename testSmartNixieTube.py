@@ -2,9 +2,12 @@ __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
 import unittest
+import subprocess
+import time
 
 from SmartNixieTube import SmartNixieTubeDisplay
 from SmartNixieTube import SmartNixieTube
+
 
 class testSmartNixieTube(unittest.TestCase):
     def setUp(self):
@@ -279,59 +282,6 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
         self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000$9,N,N,000,000,000,000!',
                          display3.generateCommandString())
 
-    # def test_SmartNixieTubeDisplay_set_too_many_digits_with_decimals(self):
-    #     numberOfTubesInDisplay = 1
-    #     display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
-    #     try:
-    #         self.assertRaises(ValueError, display.setDisplayNumber(9.0))  # this should fail (too many digits)
-    #         self.fail("Didn't raise ValueError")
-    #     except ValueError as e:
-    #         self.assertEqual(str(e), 'Not enough tubes to display all digits')
-    #
-    # def test_SmartNixieTubeDisplay_set_one_tube_display_numbers_with_decimals(self):
-    #     # set one tube
-    #     numberOfTubesInDisplay = 1
-    #     display = SmartNixieTubeDisplay(numberOfTubesInDisplay)
-    #
-    #     display.setDisplayNumber(0.9)
-    #     self.assertEqual('$9,Y,N,000,000,000,000!', display.generateCommandString())
-    #
-    #
-    # def test_SmartNixieTubeDisplay_set_two_tube_display_numbers_with_decimals(self):
-    #     # set two tubes
-    #     numberOfTubesInDisplay = 2
-    #     display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
-    #
-    #     display2.setDisplayNumber(0.9)
-    #     self.assertEqual('$9,Y,N,000,000,000,000$0,N,N,000,000,000,000!', display2.generateCommandString())
-    #
-    #     display2.setDisplayNumber(0.99)
-    #     self.assertEqual('$9,Y,N,000,000,000,000$9,N,N,000,000,000,000!', display2.generateCommandString())
-    #
-    #     display2.setDisplayNumber(9.9)
-    #     self.assertEqual('$9,N,N,000,000,000,000$9,Y,N,000,000,000,000!', display2.generateCommandString())
-    #
-    # def test_SmartNixieTubeDisplay_set_three_tube_display_numbers_with_decimals(self):
-    #     # set three tubes
-    #     numberOfTubesInDisplay = 3
-    #     display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay)
-    #
-    #     display3.setDisplayNumber(0.9)
-    #     self.assertEqual('$9,Y,N,000,000,000,000$0,N,N,000,000,000,000$0,N,N,000,000,000,000!',
-    #                      display3.generateCommandString())
-    #
-    #     display3.setDisplayNumber(99)
-    #     self.assertEqual('$9,N,N,000,000,000,000$9,N,N,000,000,000,000$0,N,N,000,000,000,000!',
-    #                      display3.generateCommandString())
-    #
-    #     display3.setDisplayNumber(909)
-    #     self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!',
-    #                      display3.generateCommandString())
-    #
-    #     display3.setDisplayNumber(990)
-    #     self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000$9,N,N,000,000,000,000!',
-    #                      display3.generateCommandString())
-
     def test_init_display_brightness_out_of_range(self):
         try:
             self.assertRaises(ValueError,
@@ -479,15 +429,102 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
         self.assertEqual('$-,N,N,000,000,000,128$-,N,N,000,000,000,128$-,N,N,000,000,000,128!',
                          display3.generateCommandString())
 
-    # Testing serial port...
+
+import sys
+from subprocess import PIPE, Popen
+from threading  import Thread
+
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty  # python 3.x
+
+class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
+    def enqueue_output(self, out, queue):
+        for line in iter(out.readline, b''):
+            queue.put(line)
+        out.close()
+
+    def setUp(self):
+        # Create two serial ports and connect them.
+        args = ['/opt/local/bin/socat', '-d', '-d', 'pty,raw,echo=0', 'pty,raw,echo=0']
+        #self.socatProcess = subprocess.Popen(args, stdout=subprocess.PIPE, bufsize=1)
+
+        ON_POSIX = 'posix' in sys.builtin_module_names
+
+        self.p = Popen(args, stdout=PIPE, bufsize=1, close_fds=ON_POSIX)
+        self.q = Queue()
+        self.t = Thread(target=self.enqueue_output, args=(self.p.stdout, self.q))
+        self.t.daemon = True # thread dies with the program
+        self.t.start()
+
+        #self.grepProcess = subprocess.Popen(['grep', 'dev'], stdin=self.socatProcess.stdout, stdout=subprocess.PIPE)
+
+        #output = self.grepProcess.communicate()[0]
+
+        # for line in self.socatProcess.communicate():
+        # print(line)
+
+        # print(self.socatProcess.communicate())
+
+        # self.exitval = 0
+        #
+        # self.socat = socat()
+        # if self.socat.wait():
+        #     LOG.warn("socat exited with code %d" % (self.socat.returncode))
+
+        # cli = CLI()
+        # cli.main()
+
+        time.sleep(0.3)
+
+        # msg = self.socatProcess.poll()
+        # print(msg)
+
+
+    def tearDown(self):
+        print('killing socat[%d]' % self.p.pid)
+        #self.socatProcess.kill()
+        self.p.kill()
+        pass
+
+    def testSocatProcessOutput(self):
+        # print (self.socatProcess.stdout.readline())
+        #print (self.socatProcess.stdout.readline()[0])
+        # out = self.socatProcess.stdout.readline()
+        # for line in out:
+        #     print(line)  # yield line
+        try:
+            line = self.q.get_nowait()  # or q.get(timeout=.1)
+        except Empty:
+            print('no output yet')
+        else:  # got line
+            # ... do something with line
+            print(line)
+
     def test_init_serialPort(self):
         try:
-            self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serialPort=-1))  # this should fail
+            self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serialPortName=-1), shell=True)  # this should fail
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('serialPort must be of type str', str(e))
 
+# class CLI:
+# def __init__(self):
+# self.exitval = 0
+#
+#     def main(self):
+#
+#         from socat import socat
+#
+#         # kick off the process, attach object to self; wait for process to exit
+#         self.socat = socat()
+#         if self.socat.wait():
+#             LOG.warn("socat exited with code %d" % (self.socat.returncode))
+#             self.exitval = 1
+#
+#         exit(self.exitval)
 
 if __name__ == '__main__':
-    # unit tests
+    # run unit tests
     unittest.main()

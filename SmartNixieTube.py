@@ -157,9 +157,9 @@ class SmartNixieTubeDisplay:
     $[DIGIT],[LEFT DECIMAL POINT],[RIGHT DECIMAL POINT],[BRIGHTNESS],[RED],[GREEN],[BLUE]!
     """
 
-    def __init__(self, numberOfTubesInDisplay, serialPort='', brightness=0, red=0, green=0, blue=0):
+    def __init__(self, numberOfTubesInDisplay, serialPortName='', brightness=0, red=0, green=0, blue=0):
         # serial port: /dev/cu.usbserial-A9QHHRFJ
-        self.serialPort = serialPort
+        self.serialPortName = serialPortName
         self.port = serial.Serial()
 
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
@@ -183,15 +183,15 @@ class SmartNixieTubeDisplay:
         self.blue = blue
 
     @property
-    def serialPort(self):
-        return self.__serialPort
+    def serialPortName(self):
+        return self.__serialPortName
 
-    @serialPort.setter
-    def serialPort(self, value):
+    @serialPortName.setter
+    def serialPortName(self, value):
         if type(value) is not str:
             raise TypeError('serialPort must be of type str')
         else:
-            self.__serialPort = value
+            self.__serialPortName = value
 
     @property
     def numberOfTubesInDisplay(self):
