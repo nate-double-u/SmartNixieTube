@@ -5,6 +5,7 @@ import unittest
 import time
 import subprocess
 import re
+from os import remove
 
 from SmartNixieTube import SmartNixieTubeDisplay
 from SmartNixieTube import SmartNixieTube
@@ -440,6 +441,13 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
         time.sleep(0.1)  # give the system a moment to actually write the socat_out file.
 
+        # get the port names
+        try:
+            self.inputPort, self.outputPort = self.get_serial_ports_from_socat_output(self.socatlf)
+        except ValueError as e:
+            print(str(e))
+
+        print(self.inputPort, self.outputPort)
 
     def tearDown(self):
         # kill the existing socat process so we don't have extra ports hanging around.
@@ -447,6 +455,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         self.socatProcess.kill()
 
         # reset output file
+        remove(self.socatlf)
         pass
 
     def get_serial_ports_from_socat_output(self, file):
@@ -458,7 +467,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             if re.search('/dev/ttys', line):
                 lines.append(line)
 
-        print(lines)
+        # print(lines)
 
         # there should be two lines with ports in them.
         if len(lines) == 2:
@@ -467,7 +476,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         else:
             raise ValueError('%s file malformed' % file)
 
-        print (inputPort, outputPort)
+        # print (inputPort, outputPort)
 
         return inputPort, outputPort
 
