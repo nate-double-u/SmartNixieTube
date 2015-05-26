@@ -2,6 +2,7 @@ __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
 from math import log10
+import time
 
 import serial
 
@@ -10,7 +11,7 @@ class SmartNixieTube:
     """Data structure for the nixie tube display. Represents 1 tube.
     for more info about these nixie tube display drivers, visit http://switchmodedesign.com/products/smart-nixie-tube"""
 
-    def __init__(self, digit='-', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0, red=0, green=0,
+    def __init__(self, digit='-', leftdecimalpoint=False, rightdecimalpoint=False, brightness=128, red=0, green=0,
                  blue=0):
 
         # This is the digit you would like to display on the Nixie Tube.
@@ -160,8 +161,6 @@ class SmartNixieTubeDisplay:
     """
 
     def __init__(self, numberOfTubesInDisplay, serialPortName='', brightness=0, red=0, green=0, blue=0):
-        self.serialPortName = serialPortName
-
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
         self.tubes = []
 
@@ -181,6 +180,34 @@ class SmartNixieTubeDisplay:
 
         # Blue controls the blue PWM value for the RGB LEDs on the whole display.
         self.blue = blue
+
+        # setup serial port stuffs
+        self.serialPortName = serialPortName
+        if self.serialPortName != '':
+            print ('setting up serial port %s' % self.serialPortName)
+            try:
+                self.port = serial.Serial(
+                    port=self.serialPortName,
+                    baudrate=115200,
+                    bytesize=serial.EIGHTBITS,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE
+                )
+                # for i in range(1):  # give the arduino time to reboot b/c opening the serial reboots it...
+                #     time.sleep(1)
+                    # print('.')
+            except:
+                raise AssertionError('Error opening serial port %s' % self.serialPortName )
+        else:
+            raise AssertionError('No serial port specified')
+
+    def __del__(self):
+        # turn off the display
+        self.reset()
+        self.sendCommand()
+
+        # clean up the port.
+        self.port.close()
 
     @property
     def serialPortName(self):
@@ -260,6 +287,14 @@ class SmartNixieTubeDisplay:
             for i in range(self.numberOfTubesInDisplay):
                 self.tubes[i].green = self.green
 
+    def reset(self):
+        for tube in self.tubes:
+            tube.digit = '-'
+            tube.brightness = 0
+            tube.red = 0
+            tube.green = 0
+            tube.blue = 0
+
     def generateCommandString(self):
         """The first set of data ($1,N,N,128,000,000,255) is going to be passed all the way to the rightmost Smart Nixie
          Tube. The last set of data ($4,N,N,128,000,000,255) is going to be in the leftmost Smart Nixie Tube. Lastly, we
@@ -280,6 +315,12 @@ class SmartNixieTubeDisplay:
     def setDisplayNumber(self, number):
         if number < 0:
             raise ValueError('Display number must be positive')
+        elif number == 0:
+            displayNumber = str(number).zfill(self.numberOfTubesInDisplay)  # pad the display number with zeroes
+            i = 0
+            for tube in self.tubes:
+                tube.digit = displayNumber[i]
+                i += 1
         elif int(log10(number)) + 1 > self.numberOfTubesInDisplay:
             raise ValueError('Not enough tubes to display all digits')
         else:
@@ -290,24 +331,15 @@ class SmartNixieTubeDisplay:
                 i += 1
 
     def sendCommand(self):
-        if self.serialPortName != '':  # open the port, send the message
+        if self.port.isOpen():
             try:
-                port = serial.Serial(
-                    port=self.serialPortName,
-                    baudrate=115200,
-                    bytesize=serial.EIGHTBITS,
-                    parity=serial.PARITY_NONE,
-                    stopbits=serial.STOPBITS_ONE
-                )
+                # do the flushings.
+                self.port.flushOutput()
+                self.port.flushInput()
+                self.port.flush()
 
-                if port.isOpen():
-                    port.write(self.generateCommandString().encode())
-                else:
-                    raise AssertionError('writeToPort failed to open')
-
-                port.close()
-            except:
-                raise AssertionError('serial write error')
-
-        else:  # something's gone wrong
-            raise AssertionError('Port not specified')
+                # send the command.
+                self.port.write(self.generateCommandString().encode())
+                time.sleep(0.1)  # give the display some time to receive the data
+            except Exception as e:
+                raise ConnectionError (str(e))
