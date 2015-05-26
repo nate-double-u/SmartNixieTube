@@ -2,7 +2,9 @@ __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
 from math import log10
+
 import serial
+
 
 class SmartNixieTube:
     """Data structure for the nixie tube display. Represents 1 tube.
@@ -157,10 +159,8 @@ class SmartNixieTubeDisplay:
     $[DIGIT],[LEFT DECIMAL POINT],[RIGHT DECIMAL POINT],[BRIGHTNESS],[RED],[GREEN],[BLUE]!
     """
 
-    def __init__(self, numberOfTubesInDisplay, serialPort='', brightness=0, red=0, green=0, blue=0):
-        # serial port: /dev/cu.usbserial-A9QHHRFJ
-        self.serialPort = serialPort
-        self.port = serial.Serial()
+    def __init__(self, numberOfTubesInDisplay, serialPortName='', brightness=0, red=0, green=0, blue=0):
+        self.serialPortName = serialPortName
 
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
         self.tubes = []
@@ -183,15 +183,15 @@ class SmartNixieTubeDisplay:
         self.blue = blue
 
     @property
-    def serialPort(self):
-        return self.__serialPort
+    def serialPortName(self):
+        return self.__serialPortName
 
-    @serialPort.setter
-    def serialPort(self, value):
+    @serialPortName.setter
+    def serialPortName(self, value):
         if type(value) is not str:
             raise TypeError('serialPort must be of type str')
         else:
-            self.__serialPort = value
+            self.__serialPortName = value
 
     @property
     def numberOfTubesInDisplay(self):
@@ -290,8 +290,24 @@ class SmartNixieTubeDisplay:
                 i += 1
 
     def sendCommand(self):
-        try:
-            print(bytearray(self.generateCommandString(), 'ascii'))
-            self.port.write(self.generateCommandString().encode())
-        except:
-            raise AssertionError('serial write error')
+        if self.serialPortName != '':  # open the port, send the message
+            try:
+                port = serial.Serial(
+                    port=self.serialPortName,
+                    baudrate=115200,
+                    bytesize=serial.EIGHTBITS,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE
+                )
+
+                if port.isOpen():
+                    port.write(self.generateCommandString().encode())
+                else:
+                    raise AssertionError('writeToPort failed to open')
+
+                port.close()
+            except:
+                raise AssertionError('serial write error')
+
+        else:  # something's gone wrong
+            raise AssertionError('Port not specified')
