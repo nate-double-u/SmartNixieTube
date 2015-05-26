@@ -11,7 +11,7 @@ class SmartNixieTube:
     """Data structure for the nixie tube display. Represents 1 tube.
     for more info about these nixie tube display drivers, visit http://switchmodedesign.com/products/smart-nixie-tube"""
 
-    def __init__(self, digit='-', leftdecimalpoint=False, rightdecimalpoint=False, brightness=128, red=0, green=0,
+    def __init__(self, digit='-', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0, red=0, green=0,
                  blue=0):
 
         # This is the digit you would like to display on the Nixie Tube.
@@ -184,7 +184,6 @@ class SmartNixieTubeDisplay:
         # setup serial port stuffs
         self.serialPortName = serialPortName
         if self.serialPortName != '':
-            print ('setting up serial port %s' % self.serialPortName)
             try:
                 self.port = serial.Serial(
                     port=self.serialPortName,
