@@ -438,7 +438,8 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
     def setUp(self):
         # Create two serial ports and connect them.
         self.socatlf = 'socat_out.txt'
-        args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+        # /opt/local/bin/socat -- but set the path so it works properly...
+        args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         self.socatProcess = subprocess.Popen(args, stdout=subprocess.PIPE, bufsize=1)
 
         time.sleep(0.3)  # give the system a moment to actually write the socat_out file.
@@ -462,7 +463,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
         # get the lines with our ports in them.
         for line in file:
-            if re.search('/dev/ttys', line):
+            if re.search('/dev/', line):
                 lines.append(line)
 
         # print(lines)
@@ -706,4 +707,4 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
 if __name__ == '__main__':
     # run unit tests
-    unittest.main()
+    unittest.main(warnings='ignore')
