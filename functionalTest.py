@@ -11,9 +11,9 @@ display = SmartNixieTubeDisplay(numberOfTubesInDisplay, '/dev/tty.usbserial-A9QH
 display.brightness = 255
 
 for i in range(255):
-    display.red = i  # random.randint(0,255)
-    display.green = i  # random.randint(0,255)
-    display.blue = i  # random.randint(0,255)
+    display.red = random.randint(0,255)
+    display.green = random.randint(0,255)
+    display.blue = random.randint(0,255)
 
     display.setDisplayNumber(i)  # random.randint(0,999))
 
