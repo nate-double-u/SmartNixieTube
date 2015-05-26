@@ -160,7 +160,6 @@ class SmartNixieTubeDisplay:
     def __init__(self, numberOfTubesInDisplay, serialPortName='', brightness=0, red=0, green=0, blue=0):
         # serial port: /dev/cu.usbserial-A9QHHRFJ
         self.serialPortName = serialPortName
-        self.port = serial.Serial()
 
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
         self.tubes = []
@@ -290,8 +289,26 @@ class SmartNixieTubeDisplay:
                 i += 1
 
     def sendCommand(self):
-        try:
-            print(bytearray(self.generateCommandString(), 'ascii'))
-            self.port.write(self.generateCommandString().encode())
-        except:
-            raise AssertionError('serial write error')
+        if self.serialPortName != '':  # open the port, send the message
+            try:
+                # print(self.generateCommandString())
+                # self.port.write(self.generateCommandString().encode())
+                port = serial.Serial(
+                    port=self.serialPortName,
+                    baudrate=115200,
+                    bytesize=serial.EIGHTBITS,
+                    parity=serial.PARITY_NONE,
+                    stopbits=serial.STOPBITS_ONE
+                )
+
+                if port.isOpen():
+                    port.write(self.generateCommandString().encode())
+                else:
+                    raise AssertionError('writeToPort failed to open')
+
+                port.close()
+            except:
+                raise AssertionError('serial write error')
+
+        else:  # something's gone wrong
+            raise AssertionError('Port not specified')

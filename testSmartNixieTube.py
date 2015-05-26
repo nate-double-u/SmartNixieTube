@@ -547,10 +547,10 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             buffer_string = b''
             while last_received != b'!':
                 last_received = readFromPort.readline(1)
-                print(last_received)
+                # print(last_received)
                 buffer_string = buffer_string + last_received
                 if b'!' in buffer_string:
-                    print (buffer_string)
+                    # print(buffer_string)
                     self.assertEqual(messageOut.encode(), buffer_string)
         else:
             self.fail('readFromPort failed to open')
@@ -558,12 +558,109 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         writeToPort.close()
         readFromPort.close()
 
+    def send_check_test_message_over_serial(self, message):
+        readFromPort = serial.Serial(
+            port=self.inputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        if readFromPort.isOpen():
+            last_received = b''
+            buffer_string = b''
+            while last_received != b'!':
+                last_received = readFromPort.readline(1)
+                # print(last_received)
+                buffer_string = buffer_string + last_received
+                if b'!' in buffer_string:
+                    # print(buffer_string)
+                    # self.assertEqual(messageOut.encode(), buffer_string)
+                    readFromPort.close()
+                    return buffer_string
+        else:
+            self.fail('readFromPort failed to open')
+
+    def test_long_command_string_between_socat_com_ports(self):
+        writeToPort = serial.Serial(
+            port=self.outputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        readFromPort = serial.Serial(
+            port=self.inputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        messageOut = '$-,N,N,000,000,000,000$-,N,N,000,000,000,000$-,N,N,000,000,000,000$-,N,N,000,000,000,000!'
+        if writeToPort.isOpen():
+            writeToPort.write(messageOut.encode())
+        else:
+            self.fail('writeToPort failed to open')
+
+        if readFromPort.isOpen():
+            last_received = b''
+            buffer_string = b''
+            while last_received != b'!':
+                last_received = readFromPort.readline(1)
+                # print(last_received)
+                buffer_string = buffer_string + last_received
+                if b'!' in buffer_string:
+                    # print(buffer_string)
+                    self.assertEqual(messageOut.encode(), buffer_string)
+        else:
+            self.fail('readFromPort failed to open')
+
+        readFromPort.close()
+        writeToPort.close()
+
     def test_init_serialPort(self):
         try:
             self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serialPortName=-1), shell=True)  # this should fail
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('serialPort must be of type str', str(e))
+
+    def test_sendCommand_3tubes_nonDefault(self):
+        numberOfTubesInDisplay = 3
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
+
+        display3.setDisplayNumber(909)
+        # self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!',
+        # display3.generateCommandString())
+
+        readFromPort = serial.Serial(
+            port=self.inputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        display3.sendCommand()
+
+        if readFromPort.isOpen():
+            last_received = b''
+            buffer_string = b''
+            while last_received != b'!':
+                last_received = readFromPort.readline(1)
+                # print(last_received)
+                buffer_string = buffer_string + last_received
+                if b'!' in buffer_string:
+                    # print(buffer_string)
+                    self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!'.encode()
+                                     , buffer_string)
+        else:
+            self.fail('readFromPort failed to open')
+
+        readFromPort.close()
 
 
 if __name__ == '__main__':
