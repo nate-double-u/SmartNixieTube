@@ -441,7 +441,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         self.socatProcess = subprocess.Popen(args, stdout=subprocess.PIPE, bufsize=1)
 
-        time.sleep(0.2)  # give the system a moment to actually write the socat_out file.
+        time.sleep(0.3)  # give the system a moment to actually write the socat_out file.
 
         # get the port names
         try:
@@ -491,14 +491,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         self.assertEqual('/dev/ttys046', inputPort)
         self.assertEqual('/dev/ttys047', outputPort)
 
-    def test_init_serialPort(self):
-        try:
-            self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serialPortName=-1), shell=True)  # this should fail
-            self.fail("Didn't raise TypeError")
-        except TypeError as e:
-            self.assertEqual('serialPort must be of type str', str(e))
-
-    def test_communication_between_comp_ports(self):
+    def test_communication_between_socat_com_ports(self):
         writeToPort = serial.Serial(
             port=self.outputPort,
             baudrate=115200,
@@ -525,6 +518,52 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
         writeToPort.close()
         readFromPort.close()
+
+    def test_command_string_between_socat_com_ports(self):
+        writeToPort = serial.Serial(
+            port=self.outputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        readFromPort = serial.Serial(
+            port=self.inputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        messageOut = '$-,N,N,000,000,000,000!'
+        if writeToPort.isOpen():
+            writeToPort.write(messageOut.encode())
+        else:
+            self.fail('writeToPort failed to open')
+
+        if readFromPort.isOpen():
+            last_received = b''
+            buffer_string = b''
+            while last_received != b'!':
+                last_received = readFromPort.readline(1)
+                print(last_received)
+                buffer_string = buffer_string + last_received
+                if b'!' in buffer_string:
+                    print (buffer_string)
+                    self.assertEqual(messageOut.encode(), buffer_string)
+        else:
+            self.fail('readFromPort failed to open')
+
+        writeToPort.close()
+        readFromPort.close()
+
+    def test_init_serialPort(self):
+        try:
+            self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serialPortName=-1), shell=True)  # this should fail
+            self.fail("Didn't raise TypeError")
+        except TypeError as e:
+            self.assertEqual('serialPort must be of type str', str(e))
 
 
 if __name__ == '__main__':
