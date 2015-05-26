@@ -2,7 +2,9 @@ __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
 from math import log10
+
 import serial
+
 
 class SmartNixieTube:
     """Data structure for the nixie tube display. Represents 1 tube.
@@ -158,7 +160,6 @@ class SmartNixieTubeDisplay:
     """
 
     def __init__(self, numberOfTubesInDisplay, serialPortName='', brightness=0, red=0, green=0, blue=0):
-        # serial port: /dev/cu.usbserial-A9QHHRFJ
         self.serialPortName = serialPortName
 
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
@@ -291,8 +292,6 @@ class SmartNixieTubeDisplay:
     def sendCommand(self):
         if self.serialPortName != '':  # open the port, send the message
             try:
-                # print(self.generateCommandString())
-                # self.port.write(self.generateCommandString().encode())
                 port = serial.Serial(
                     port=self.serialPortName,
                     baudrate=115200,

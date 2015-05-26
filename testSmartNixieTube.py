@@ -558,30 +558,6 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         writeToPort.close()
         readFromPort.close()
 
-    def send_check_test_message_over_serial(self, message):
-        readFromPort = serial.Serial(
-            port=self.inputPort,
-            baudrate=115200,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE
-        )
-
-        if readFromPort.isOpen():
-            last_received = b''
-            buffer_string = b''
-            while last_received != b'!':
-                last_received = readFromPort.readline(1)
-                # print(last_received)
-                buffer_string = buffer_string + last_received
-                if b'!' in buffer_string:
-                    # print(buffer_string)
-                    # self.assertEqual(messageOut.encode(), buffer_string)
-                    readFromPort.close()
-                    return buffer_string
-        else:
-            self.fail('readFromPort failed to open')
-
     def test_long_command_string_between_socat_com_ports(self):
         writeToPort = serial.Serial(
             port=self.outputPort,
@@ -628,13 +604,12 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         except TypeError as e:
             self.assertEqual('serialPort must be of type str', str(e))
 
-    def test_sendCommand_3tubes_nonDefault(self):
-        numberOfTubesInDisplay = 3
-        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
+    def test_sendCommand_1tubes_nonDefault(self):
+        numberOfTubesInDisplay = 1
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
 
-        display3.setDisplayNumber(909)
-        # self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!',
-        # display3.generateCommandString())
+        display.setDisplayNumber(9)
+        # this should equal: '$9,N,N,000,000,000,000!'
 
         readFromPort = serial.Serial(
             port=self.inputPort,
@@ -644,7 +619,73 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             stopbits=serial.STOPBITS_ONE
         )
 
-        display3.sendCommand()
+        display.sendCommand()
+
+        if readFromPort.isOpen():
+            last_received = b''
+            buffer_string = b''
+            while last_received != b'!':
+                last_received = readFromPort.readline(1)
+                # print(last_received)
+                buffer_string = buffer_string + last_received
+                if b'!' in buffer_string:
+                    # print(buffer_string)
+                    self.assertEqual('$9,N,N,000,000,000,000!'.encode()
+                                     , buffer_string)
+        else:
+            self.fail('readFromPort failed to open')
+
+        readFromPort.close()
+
+    def test_sendCommand_2tubes_nonDefault(self):
+        numberOfTubesInDisplay = 2
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
+
+        display.setDisplayNumber(90)
+        # this should equal: '$0,N,N,000,000,000,000$9,N,N,000,000,000,000!'
+
+        readFromPort = serial.Serial(
+            port=self.inputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        display.sendCommand()
+
+        if readFromPort.isOpen():
+            last_received = b''
+            buffer_string = b''
+            while last_received != b'!':
+                last_received = readFromPort.readline(1)
+                # print(last_received)
+                buffer_string = buffer_string + last_received
+                if b'!' in buffer_string:
+                    # print(buffer_string)
+                    self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000!'.encode()
+                                     , buffer_string)
+        else:
+            self.fail('readFromPort failed to open')
+
+        readFromPort.close()
+
+    def test_sendCommand_3tubes_nonDefault(self):
+        numberOfTubesInDisplay = 3
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
+
+        display.setDisplayNumber(909)
+        # this should equal: '$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!'
+
+        readFromPort = serial.Serial(
+            port=self.inputPort,
+            baudrate=115200,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE
+        )
+
+        display.sendCommand()
 
         if readFromPort.isOpen():
             last_received = b''
