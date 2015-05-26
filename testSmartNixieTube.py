@@ -707,4 +707,4 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
 if __name__ == '__main__':
     # run unit tests
-    unittest.main()
+    unittest.main(warnings='ignore')
