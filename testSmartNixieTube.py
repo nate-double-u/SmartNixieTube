@@ -161,10 +161,7 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
     def setUp(self):
         # Create two serial ports and connect them.
         self.socatlf = 'socat_out.txt'
-        if _platform == "linux" or _platform == "linux2":
-            args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
-        elif _platform == "darwin":
-            # args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+        if _platform == "linux" or _platform == "linux2" or _platform == "darwin":
             args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         elif _platform == "win32":
             # Windows...
@@ -497,10 +494,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
     def setUp(self):
         # Create two serial ports and connect them.
         self.socatlf = 'socat_out.txt'
-        if _platform == "linux" or _platform == "linux2":
-            args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
-        elif _platform == "darwin":
-            # args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+        if _platform == "linux" or _platform == "linux2" or _platform == "darwin":
             args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         elif _platform == "win32":
             # Windows...
@@ -532,16 +526,12 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             if re.search('/dev/', line):
                 lines.append(line)
 
-        # print(lines)
-
         # there should be two lines with ports in them.
         if len(lines) == 2:
             inputPort = lines[0].split()[6]
             outputPort = lines[1].split()[6]
         else:
             raise ValueError('%s file malformed' % file)
-
-        # print (inputPort, outputPort)
 
         return inputPort, outputPort
 
@@ -614,10 +604,8 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             buffer_string = b''
             while last_received != b'!':
                 last_received = readFromPort.readline(1)
-                # print(last_received)
                 buffer_string = buffer_string + last_received
                 if b'!' in buffer_string:
-                    # print(buffer_string)
                     self.assertEqual(messageOut.encode(), buffer_string)
         else:
             self.fail('readFromPort failed to open')
@@ -653,10 +641,8 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             buffer_string = b''
             while last_received != b'!':
                 last_received = readFromPort.readline(1)
-                # print(last_received)
                 buffer_string = buffer_string + last_received
                 if b'!' in buffer_string:
-                    # print(buffer_string)
                     self.assertEqual(messageOut.encode(), buffer_string)
         else:
             self.fail('readFromPort failed to open')
