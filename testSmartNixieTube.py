@@ -11,7 +11,6 @@ from sys import platform as _platform
 import serial
 
 from SmartNixieTube import SmartNixieTubeDisplay
-from SmartNixieTube import SmartNixieTube
 
 
 class testSmartNixieTube(unittest.TestCase):
@@ -22,89 +21,91 @@ class testSmartNixieTube(unittest.TestCase):
         pass
 
     def test_init_digit_in_range(self):
-        tube = SmartNixieTube(digit='0')
+        tube = SmartNixieTubeDisplay.SmartNixieTube(digit='0')
         self.assertEqual('0', tube.digit)
 
     def test_init_digits_out_of_range(self):
-        tube = SmartNixieTube(digit='=', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0,
-                              red=0, green=0,
-                              blue=0)
+        tube = SmartNixieTubeDisplay.SmartNixieTube(digit='=', leftdecimalpoint=False, rightdecimalpoint=False,
+                                                    brightness=0,
+                                                    red=0, green=0,
+                                                    blue=0)
         self.assertEqual('-', tube.digit)  # tube turned off if send something out of bounds.
 
     def test_init_digits_not_a_number(self):
-        tube = SmartNixieTube(digit='A', leftdecimalpoint=False, rightdecimalpoint=False, brightness=0,
-                              red=0, green=0,
-                              blue=0)
+        tube = SmartNixieTubeDisplay.SmartNixieTube(digit='A', leftdecimalpoint=False, rightdecimalpoint=False,
+                                                    brightness=0,
+                                                    red=0, green=0,
+                                                    blue=0)
         self.assertEqual('-', tube.digit)  # tube turned off if send something out of bounds.
 
     def test_init_leftDecimalPoint_wrong_type(self):
         try:
-            self.assertRaises(TypeError, SmartNixieTube(leftdecimalpoint=-1))  # this should fail
+            self.assertRaises(TypeError, SmartNixieTubeDisplay.SmartNixieTube(leftdecimalpoint=-1))  # this should fail
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('Left decimal point must be of type bool', str(e))
 
     def test_init_rightDecimalPoint_wrong_type(self):
         try:
-            self.assertRaises(TypeError, SmartNixieTube(rightdecimalpoint=-1))  # this should fail
+            self.assertRaises(TypeError, SmartNixieTubeDisplay.SmartNixieTube(rightdecimalpoint=-1))  # this should fail
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('Right decimal point must be of type bool', str(e))
 
     def test_init_brightness_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTube(brightness=-1))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(brightness=-1))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Brightness must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTube(brightness=256))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(brightness=256))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Brightness must be between 0-255', str(e))
 
     def test_init_red_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTube(red=-1))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(red=-1))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Red must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTube(red=256))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(red=256))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Red must be between 0-255', str(e))
 
     def test_init_blue_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTube(blue=-1))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(blue=-1))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Blue must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTube(blue=256))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(blue=256))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Blue must be between 0-255', str(e))
 
     def test_init_green_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTube(green=-1))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(green=-1))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Green must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTube(green=256))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay.SmartNixieTube(green=256))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Green must be between 0-255', str(e))
 
     def test_init_defaults(self):
-        tube = SmartNixieTube()
+        tube = SmartNixieTubeDisplay.SmartNixieTube()
         self.assertEqual('-', tube.digit)
         self.assertEqual(False, tube.leftDecimalPoint)
         self.assertEqual(False, tube.rightDecimalPoint)
@@ -114,38 +115,41 @@ class testSmartNixieTube(unittest.TestCase):
         self.assertEqual(0, tube.red)
 
     def test_convertDigitToStringWithLeadingZeros(self):
-        tube = SmartNixieTube()
+        tube = SmartNixieTubeDisplay.SmartNixieTube()
         self.assertEqual('000', tube.convertDigitToStringWithLeadingZeros(0))
         self.assertEqual('001', tube.convertDigitToStringWithLeadingZeros(1))
         self.assertEqual('010', tube.convertDigitToStringWithLeadingZeros(10))
         self.assertEqual('100', tube.convertDigitToStringWithLeadingZeros(100))
 
     def test_convertFromBoolToYN(self):
-        tube = SmartNixieTube()
+        tube = SmartNixieTubeDisplay.SmartNixieTube()
         self.assertEqual(tube.convertFromBooltoYN(True), 'Y')
         self.assertEqual(tube.convertFromBooltoYN(False), 'N')
 
     def test_generateCommandString(self):
-        tube = SmartNixieTube()
+        tube = SmartNixieTubeDisplay.SmartNixieTube()
         self.assertEqual('$-,N,N,000,000,000,000', tube.generateCommandString())
 
-        tube2 = SmartNixieTube('9', False, False, 128, 0, 255, 255)
+        tube2 = SmartNixieTubeDisplay.SmartNixieTube('9', leftdecimalpoint=False, rightdecimalpoint=False,
+                                                     brightness=128, red=0, green=255, blue=255)
         self.assertEqual('$9,N,N,128,000,255,255', tube2.generateCommandString())
 
-        tube3 = SmartNixieTube('5', False, False, 28, 0, 10, 1)
+        tube3 = SmartNixieTubeDisplay.SmartNixieTube('5', leftdecimalpoint=False, rightdecimalpoint=False,
+                                                     brightness=28, red=0, green=10, blue=1)
         self.assertEqual('$5,N,N,028,000,010,001', tube3.generateCommandString())
 
     def test_LeftDecimalCommandString(self):
-        tube = SmartNixieTube(leftdecimalpoint=True)
+        tube = SmartNixieTubeDisplay.SmartNixieTube(leftdecimalpoint=True)
         self.assertEqual('$-,Y,N,000,000,000,000', tube.generateCommandString())
 
     def test_RightDecimalCommandString(self):
-        tube = SmartNixieTube(rightdecimalpoint=True)
+        tube = SmartNixieTubeDisplay.SmartNixieTube(rightdecimalpoint=True)
         self.assertEqual('$-,N,Y,000,000,000,000', tube.generateCommandString())
 
     def test_turnOff(self):
         # turn on anything, check that it's on
-        tube = SmartNixieTube('9', False, False, 128, 0, 255, 255)
+        tube = SmartNixieTubeDisplay.SmartNixieTube('9', leftdecimalpoint=False, rightdecimalpoint=False,
+                                                    brightness=128, red=0, green=255, blue=255)
         self.assertEqual('$9,N,N,128,000,255,255', tube.generateCommandString())
 
         # test that the generate command string sends out zeros and a dash after turnOff()
@@ -160,7 +164,8 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
         if _platform == "linux" or _platform == "linux2":
             args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         elif _platform == "darwin":
-            args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+            # args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+            args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         elif _platform == "win32":
             # Windows...
             self.fail()
@@ -495,7 +500,8 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         if _platform == "linux" or _platform == "linux2":
             args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         elif _platform == "darwin":
-            args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+            # args = ['/opt/local/bin/socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
+            args = ['socat', '-d', '-d', '-lf' + self.socatlf, 'pty,raw,echo=0', 'pty,raw,echo=0']
         elif _platform == "win32":
             # Windows...
             self.fail()
