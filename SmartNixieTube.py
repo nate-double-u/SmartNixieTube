@@ -18,7 +18,8 @@ class SmartNixieTubeDisplay:
 
     class SmartNixieTube:
         """Data structure for the nixie tube display. Represents 1 tube.
-        for more info about these nixie tube display drivers, visit http://switchmodedesign.com/products/smart-nixie-tube"""
+        For more info about these nixie tube display drivers
+        visit http://switchmodedesign.com/products/smart-nixie-tube"""
 
         def __init__(self, digit='-', *, leftdecimalpoint=False, rightdecimalpoint=False, brightness=0, red=0, green=0,
                      blue=0):
