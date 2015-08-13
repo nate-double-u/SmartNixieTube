@@ -9,8 +9,19 @@ from os import remove
 from sys import platform as _platform
 import serial
 
-from SmartNixieTube import SmartNixieTubeDisplay
-
+# try:
+from smartnixietube.SmartNixieTube import SmartNixieTubeDisplay
+# except ImportError as e:
+#     print(str(e))
+#     import sys
+#     import os
+#     PACKAGE_PARENT = '..'
+#     SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+#     sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+#
+#     print(str(SCRIPT_DIR))
+#
+#     from  import SmartNixieTubeDisplay
 
 class testSmartNixieTube(unittest.TestCase):
     def setUp(self):
@@ -539,7 +550,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         # test_socat_out_sample
 
         try:
-            inputPort, outputPort = self.get_serial_ports_from_socat_output('tests/test_socat_out_sample')
+            inputPort, outputPort = self.get_serial_ports_from_socat_output('test_socat_out_sample')
         except ValueError as e:
             pass
 

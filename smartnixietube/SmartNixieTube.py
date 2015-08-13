@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
@@ -161,7 +159,7 @@ class SmartNixieTubeDisplay:
                 self.convertDigitToStringWithLeadingZeros(self.green) + ',' +
                 self.convertDigitToStringWithLeadingZeros(self.blue)
             )
-            # end of class SmartNixieTube:
+            # end of class SmartNixieTubeProject:
 
     def __init__(self, numberOfTubesInDisplay, serialPortName='', *, brightness=0, red=0, green=0, blue=0):
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
@@ -319,6 +317,7 @@ class SmartNixieTubeDisplay:
         return commandString
 
     def setDisplayNumber(self, number):
+        # TODO: allow for floats (start using decimal points)
         if number < 0:
             raise ValueError('Display number must be positive')
         elif number == 0:
