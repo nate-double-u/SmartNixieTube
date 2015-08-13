@@ -184,6 +184,7 @@ class SmartNixieTubeDisplay:
         # Blue controls the blue PWM value for the RGB LEDs on the whole display.
         self.blue = blue
 
+        # TODO: setup a more automated serial port connection
         # setup serial port stuffs
         self.serialPortName = serialPortName
         if self.serialPortName != '':
