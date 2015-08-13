@@ -3,7 +3,16 @@ __email__ = 'nathan_waddington@alumni.sfu.ca'
 
 import random
 
-from SmartNixieTube import SmartNixieTubeDisplay
+try:
+    from smartnixietube.SmartNixieTube import SmartNixieTubeDisplay
+except ImportError as e:
+    import sys
+    import os
+    PACKAGE_PARENT = '..'
+    SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+    sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
+    from smartnixietube.SmartNixieTube import SmartNixieTubeDisplay
 
 numberOfTubesInDisplay = 3
 display = SmartNixieTubeDisplay(numberOfTubesInDisplay, '/dev/tty.usbserial-A9QHHRFJ')  # '/dev/tty.usbserial-A9UD9RRV')
