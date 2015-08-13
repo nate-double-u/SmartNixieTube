@@ -18,7 +18,8 @@ class SmartNixieTubeDisplay:
 
     class SmartNixieTube:
         """Data structure for the nixie tube display. Represents 1 tube.
-        for more info about these nixie tube display drivers, visit http://switchmodedesign.com/products/smart-nixie-tube"""
+        For more info about these nixie tube display drivers
+        visit http://switchmodedesign.com/products/smart-nixie-tube"""
 
         def __init__(self, digit='-', *, leftdecimalpoint=False, rightdecimalpoint=False, brightness=0, red=0, green=0,
                      blue=0):
@@ -158,7 +159,7 @@ class SmartNixieTubeDisplay:
                 self.convertDigitToStringWithLeadingZeros(self.green) + ',' +
                 self.convertDigitToStringWithLeadingZeros(self.blue)
             )
-            # end of class SmartNixieTube:
+            # end of class SmartNixieTubeProject:
 
     def __init__(self, numberOfTubesInDisplay, serialPortName='', *, brightness=0, red=0, green=0, blue=0):
         self.numberOfTubesInDisplay = numberOfTubesInDisplay
@@ -181,6 +182,7 @@ class SmartNixieTubeDisplay:
         # Blue controls the blue PWM value for the RGB LEDs on the whole display.
         self.blue = blue
 
+        # TODO: setup a more automated serial port connection
         # setup serial port stuffs
         self.serialPortName = serialPortName
         if self.serialPortName != '':
@@ -315,6 +317,7 @@ class SmartNixieTubeDisplay:
         return commandString
 
     def setDisplayNumber(self, number):
+        # TODO: allow for floats (start using decimal points)
         if number < 0:
             raise ValueError('Display number must be positive')
         elif number == 0:
