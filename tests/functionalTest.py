@@ -1,9 +1,9 @@
 __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
-from SmartNixieTube import SmartNixieTubeDisplay
-import time
 import random
+
+from SmartNixieTube import SmartNixieTubeDisplay
 
 numberOfTubesInDisplay = 3
 display = SmartNixieTubeDisplay(numberOfTubesInDisplay, '/dev/tty.usbserial-A9QHHRFJ')  # '/dev/tty.usbserial-A9UD9RRV')

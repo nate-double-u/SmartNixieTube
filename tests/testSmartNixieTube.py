@@ -7,9 +7,10 @@ import subprocess
 import re
 from os import remove
 from sys import platform as _platform
-
 import serial
 
+import sys
+sys.path.append('/Users/nathan.waddington/g/SmartNixieTube')
 from SmartNixieTube import SmartNixieTubeDisplay
 
 
@@ -540,7 +541,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
         # test_socat_out_sample
 
         try:
-            inputPort, outputPort = self.get_serial_ports_from_socat_output('tests/test_socat_out_sample')
+            inputPort, outputPort = self.get_serial_ports_from_socat_output('test_socat_out_sample')
         except ValueError as e:
             pass
 

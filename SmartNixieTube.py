@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
 
