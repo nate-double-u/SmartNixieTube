@@ -1,10 +1,9 @@
-__author__ = 'Nathan Waddington'
-__email__ = 'nathan_waddington@alumni.sfu.ca'
-
 from math import log10
 import time
-
 import serial
+
+__author__ = 'Nathan Waddington'
+__email__ = 'nathan_waddington@alumni.sfu.ca'
 
 
 class SmartNixieTubeDisplay:
@@ -21,17 +20,17 @@ class SmartNixieTubeDisplay:
         For more info about these nixie tube display drivers
         visit http://switchmodedesign.com/products/smart-nixie-tube"""
 
-        def __init__(self, digit='-', *, leftdecimalpoint=False, rightdecimalpoint=False, brightness=0, red=0, green=0,
-                     blue=0):
+        def __init__(self, digit='-', *, left_decimal_point=False, right_decimal_point=False, brightness=0, red=0,
+                     green=0, blue=0):
 
             # This is the digit you would like to display on the Nixie Tube.
             self.digit = digit
 
             # This is the control character for the left decimal point of the Nixie Tube.
-            self.leftDecimalPoint = leftdecimalpoint
+            self.left_decimal_point = left_decimal_point
 
             # This is the control character for the right decimal point of the Nixie Tube.
-            self.rightDecimalPoint = rightdecimalpoint
+            self.right_decimal_point = right_decimal_point
 
             # Brightness controls the PWM (brightness) value for the Nixie Tube.
             self.brightness = brightness
@@ -59,28 +58,28 @@ class SmartNixieTubeDisplay:
                 self.__digit = value  # This is the digit you would like to display on the Nixie Tube.
 
         @property
-        def leftDecimalPoint(self):
+        def left_decimal_point(self):
             """This is the control character for the left decimal point of the Nixie Tube."""
-            return self.__leftDecimalPoint
+            return self.__left_decimal_point
 
-        @leftDecimalPoint.setter
-        def leftDecimalPoint(self, value):
+        @left_decimal_point.setter
+        def left_decimal_point(self, value):
             if type(value) is not bool:
                 raise TypeError('Left decimal point must be of type bool')
             else:
-                self.__leftDecimalPoint = value
+                self.__left_decimal_point = value
 
         @property
-        def rightDecimalPoint(self):
+        def right_decimal_point(self):
             """This is the control character for the left decimal point of the Nixie Tube."""
-            return self.__rightDecimalPoint
+            return self.__right_decimal_point
 
-        @rightDecimalPoint.setter
-        def rightDecimalPoint(self, value):
+        @right_decimal_point.setter
+        def right_decimal_point(self, value):
             if type(value) is not bool:
                 raise TypeError('Right decimal point must be of type bool')
             else:
-                self.__rightDecimalPoint = value
+                self.__right_decimal_point = value
 
         @property
         def brightness(self):
@@ -130,43 +129,45 @@ class SmartNixieTubeDisplay:
             else:
                 self.__green = value
 
-        def turnOff(self):
+        def turn_off(self):
             self.digit = '-'
-            self.leftdecimalpoint = False
-            self.rightdecimalpoint = False
+            self.left_decimal_point = False
+            self.right_decimal_point = False
             self.brightness = 0
             self.red = 0
             self.green = 0
             self.blue = 0
 
-        def convertDigitToStringWithLeadingZeros(self, number):
+        @staticmethod
+        def convert_digit_to_string_with_leading_zeros(number):
             return '%03d' % number
 
-        def convertFromBooltoYN(self, boolean):
+        @staticmethod
+        def convert_from_bool_to_yn(boolean):
             if boolean:
                 return 'Y'
             else:
                 return 'N'
 
-        def generateCommandString(self):
+        def generate_command_string(self):
             return (
                 '$' +
                 self.digit + ',' +
-                self.convertFromBooltoYN(self.leftDecimalPoint) + ',' +
-                self.convertFromBooltoYN(self.rightDecimalPoint) + ',' +
-                self.convertDigitToStringWithLeadingZeros(self.brightness) + ',' +
-                self.convertDigitToStringWithLeadingZeros(self.red) + ',' +
-                self.convertDigitToStringWithLeadingZeros(self.green) + ',' +
-                self.convertDigitToStringWithLeadingZeros(self.blue)
+                self.convert_from_bool_to_yn(self.left_decimal_point) + ',' +
+                self.convert_from_bool_to_yn(self.right_decimal_point) + ',' +
+                self.convert_digit_to_string_with_leading_zeros(self.brightness) + ',' +
+                self.convert_digit_to_string_with_leading_zeros(self.red) + ',' +
+                self.convert_digit_to_string_with_leading_zeros(self.green) + ',' +
+                self.convert_digit_to_string_with_leading_zeros(self.blue)
             )
             # end of class SmartNixieTubeProject:
 
-    def __init__(self, numberOfTubesInDisplay, serialPortName='', *, brightness=0, red=0, green=0, blue=0):
-        self.numberOfTubesInDisplay = numberOfTubesInDisplay
+    def __init__(self, number_of_tubes_in_display, serial_port_name='', *, brightness=0, red=0, green=0, blue=0):
+        self.number_of_tubes_in_display = number_of_tubes_in_display
         self.tubes = []
 
         # setup the individual tubes in the display
-        for i in range(self.numberOfTubesInDisplay):
+        for i in range(self.number_of_tubes_in_display):
             self.tubes.append(SmartNixieTubeDisplay.SmartNixieTube())
 
         # Set the global display values
@@ -184,21 +185,21 @@ class SmartNixieTubeDisplay:
 
         # TODO: setup a more automated serial port connection
         # setup serial port stuffs
-        self.serialPortName = serialPortName
-        if self.serialPortName != '':
+        self.serial_port_name = serial_port_name
+        if self.serial_port_name != '':
             try:
                 self.port = serial.Serial(
-                    port=self.serialPortName,
+                    port=self.serial_port_name,
                     baudrate=115200,
                     bytesize=serial.EIGHTBITS,
                     parity=serial.PARITY_NONE,
                     stopbits=serial.STOPBITS_ONE
                 )
-                # for i in range(1):  # give the arduino time to reboot b/c opening the serial reboots it...
+                # for i in range(1):  # give the Arduino time to reboot b/c opening the serial reboots it...
                 #     time.sleep(1)
                 # print('.')
             except:
-                raise AssertionError('Error opening serial port %s' % self.serialPortName)
+                raise AssertionError('Error opening serial port %s' % self.serial_port_name)
         else:
             raise AssertionError('No serial port specified')
 
@@ -206,7 +207,7 @@ class SmartNixieTubeDisplay:
         try:
             # turn off the display
             self.reset()
-            self.sendCommand()
+            self.send_command()
 
             # clean up the port.
             self.port.close()
@@ -214,26 +215,26 @@ class SmartNixieTubeDisplay:
             pass
 
     @property
-    def serialPortName(self):
-        return self.__serialPortName
+    def serial_port_name(self):
+        return self.__serial_port_name
 
-    @serialPortName.setter
-    def serialPortName(self, value):
+    @serial_port_name.setter
+    def serial_port_name(self, value):
         if type(value) is not str:
             raise TypeError('serialPort must be of type str')
         else:
-            self.__serialPortName = value
+            self.__serial_port_name = value
 
     @property
-    def numberOfTubesInDisplay(self):
-        return self.__numberOfTubesInDisplay
+    def number_of_tubes_in_display(self):
+        return self.__number_of_tubes_in_display
 
-    @numberOfTubesInDisplay.setter
-    def numberOfTubesInDisplay(self, value):
+    @number_of_tubes_in_display.setter
+    def number_of_tubes_in_display(self, value):
         if value < 1:
-            raise ValueError('numberOfTubesInDisplay must be greater than 0')
+            raise ValueError('number_of_tubes_in_display must be greater than 0')
         else:
-            self.__numberOfTubesInDisplay = value
+            self.__number_of_tubes_in_display = value
 
     @property
     def brightness(self):
@@ -246,7 +247,7 @@ class SmartNixieTubeDisplay:
             raise ValueError('Brightness must be between 0-255')
         else:
             self.__brightness = value
-            for i in range(self.numberOfTubesInDisplay):
+            for i in range(self.number_of_tubes_in_display):
                 self.tubes[i].brightness = self.brightness
 
     @property
@@ -260,7 +261,7 @@ class SmartNixieTubeDisplay:
             raise ValueError('Red must be between 0-255')
         else:
             self.__red = value
-            for i in range(self.numberOfTubesInDisplay):
+            for i in range(self.number_of_tubes_in_display):
                 self.tubes[i].red = self.red
 
     @property
@@ -274,7 +275,7 @@ class SmartNixieTubeDisplay:
             raise ValueError('Blue must be between 0-255')
         else:
             self.__blue = value
-            for i in range(self.numberOfTubesInDisplay):
+            for i in range(self.number_of_tubes_in_display):
                 self.tubes[i].blue = self.blue
 
     @property
@@ -288,7 +289,7 @@ class SmartNixieTubeDisplay:
             raise ValueError('Green must be between 0-255')
         else:
             self.__green = value
-            for i in range(self.numberOfTubesInDisplay):
+            for i in range(self.number_of_tubes_in_display):
                 self.tubes[i].green = self.green
 
     def reset(self):
@@ -299,43 +300,43 @@ class SmartNixieTubeDisplay:
             tube.green = 0
             tube.blue = 0
 
-    def generateCommandString(self):
+    def generate_command_string(self):
         """The first set of data ($1,N,N,128,000,000,255) is going to be passed all the way to the rightmost Smart Nixie
          Tube. The last set of data ($4,N,N,128,000,000,255) is going to be in the leftmost Smart Nixie Tube. Lastly, we
          send the ! in order to tell all of the Smart Nixie Tubes that the data is ready to be latched into their
          display buffer."""
 
-        commandString = ''
+        command_string = ''
 
         # The serial data is passed from left to right.
         for tube in self.tubes:
-            commandString = tube.generateCommandString() + commandString
+            command_string = tube.generate_command_string() + command_string
 
         # add the latch command at the end to tell the display when the command is done.
-        commandString = commandString + '!'
+        command_string = command_string + '!'
 
-        return commandString
+        return command_string
 
-    def setDisplayNumber(self, number):
+    def set_display_number(self, number):
         # TODO: allow for floats (start using decimal points)
         if number < 0:
             raise ValueError('Display number must be positive')
         elif number == 0:
-            displayNumber = str(number).zfill(self.numberOfTubesInDisplay)  # pad the display number with zeroes
+            display_number = str(number).zfill(self.number_of_tubes_in_display)  # pad the display number with zeroes
             i = 0
             for tube in self.tubes:
-                tube.digit = displayNumber[i]
+                tube.digit = display_number[i]
                 i += 1
-        elif int(log10(number)) + 1 > self.numberOfTubesInDisplay:
+        elif int(log10(number)) + 1 > self.number_of_tubes_in_display:
             raise ValueError('Not enough tubes to display all digits')
         else:
-            displayNumber = str(number).zfill(self.numberOfTubesInDisplay)  # pad the display number with zeroes
+            display_number = str(number).zfill(self.number_of_tubes_in_display)  # pad the display number with zeroes
             i = 0
             for tube in self.tubes:
-                tube.digit = displayNumber[i]
+                tube.digit = display_number[i]
                 i += 1
 
-    def sendCommand(self):
+    def send_command(self):
         if self.port.isOpen():
             try:
                 # do the flushings.
@@ -344,7 +345,7 @@ class SmartNixieTubeDisplay:
                 self.port.flush()
 
                 # send the command.
-                self.port.write(self.generateCommandString().encode())
+                self.port.write(self.generate_command_string().encode())
                 time.sleep(0.1)  # give the display some time to receive the data
             except Exception as e:
                 raise ConnectionError(str(e))

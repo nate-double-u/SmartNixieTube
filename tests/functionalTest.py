@@ -30,7 +30,7 @@ for i in range(255):
     display.blue = random.randint(0, 255)
 
     # set the display number
-    display.setDisplayNumber(i)  # random.randint(0,999))
+    display.set_display_number(i)  # random.randint(0,999))
 
     # send the command set to the display
-    display.sendCommand()
+    display.send_command()
