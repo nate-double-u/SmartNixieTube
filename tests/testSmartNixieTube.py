@@ -32,14 +32,14 @@ class testSmartNixieTube(unittest.TestCase):
         self.assertEqual('0', tube.digit)
 
     def test_init_digits_out_of_range(self):
-        tube = SmartNixieTubeDisplay.SmartNixieTube(digit='=', leftdecimalpoint=False, rightdecimalpoint=False,
+        tube = SmartNixieTubeDisplay.SmartNixieTube(digit='=', left_decimal_point=False, right_decimal_point=False,
                                                     brightness=0,
                                                     red=0, green=0,
                                                     blue=0)
         self.assertEqual('-', tube.digit)  # tube turned off if send something out of bounds.
 
     def test_init_digits_not_a_number(self):
-        tube = SmartNixieTubeDisplay.SmartNixieTube(digit='A', leftdecimalpoint=False, rightdecimalpoint=False,
+        tube = SmartNixieTubeDisplay.SmartNixieTube(digit='A', left_decimal_point=False, right_decimal_point=False,
                                                     brightness=0,
                                                     red=0, green=0,
                                                     blue=0)
@@ -47,14 +47,14 @@ class testSmartNixieTube(unittest.TestCase):
 
     def test_init_leftDecimalPoint_wrong_type(self):
         try:
-            self.assertRaises(TypeError, SmartNixieTubeDisplay.SmartNixieTube(leftdecimalpoint=-1))  # this should fail
+            self.assertRaises(TypeError, SmartNixieTubeDisplay.SmartNixieTube(left_decimal_point=-1))  # this should fail
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('Left decimal point must be of type bool', str(e))
 
     def test_init_rightDecimalPoint_wrong_type(self):
         try:
-            self.assertRaises(TypeError, SmartNixieTubeDisplay.SmartNixieTube(rightdecimalpoint=-1))  # this should fail
+            self.assertRaises(TypeError, SmartNixieTubeDisplay.SmartNixieTube(right_decimal_point=-1))  # this should fail
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('Right decimal point must be of type bool', str(e))
@@ -114,8 +114,8 @@ class testSmartNixieTube(unittest.TestCase):
     def test_init_defaults(self):
         tube = SmartNixieTubeDisplay.SmartNixieTube()
         self.assertEqual('-', tube.digit)
-        self.assertEqual(False, tube.leftDecimalPoint)
-        self.assertEqual(False, tube.rightDecimalPoint)
+        self.assertEqual(False, tube.left_decimal_point)
+        self.assertEqual(False, tube.right_decimal_point)
         self.assertEqual(0, tube.brightness)
         self.assertEqual(0, tube.blue)
         self.assertEqual(0, tube.green)
@@ -123,45 +123,45 @@ class testSmartNixieTube(unittest.TestCase):
 
     def test_convertDigitToStringWithLeadingZeros(self):
         tube = SmartNixieTubeDisplay.SmartNixieTube()
-        self.assertEqual('000', tube.convertDigitToStringWithLeadingZeros(0))
-        self.assertEqual('001', tube.convertDigitToStringWithLeadingZeros(1))
-        self.assertEqual('010', tube.convertDigitToStringWithLeadingZeros(10))
-        self.assertEqual('100', tube.convertDigitToStringWithLeadingZeros(100))
+        self.assertEqual('000', tube.convert_digit_to_string_with_leading_zeros(0))
+        self.assertEqual('001', tube.convert_digit_to_string_with_leading_zeros(1))
+        self.assertEqual('010', tube.convert_digit_to_string_with_leading_zeros(10))
+        self.assertEqual('100', tube.convert_digit_to_string_with_leading_zeros(100))
 
     def test_convertFromBoolToYN(self):
         tube = SmartNixieTubeDisplay.SmartNixieTube()
-        self.assertEqual(tube.convertFromBooltoYN(True), 'Y')
-        self.assertEqual(tube.convertFromBooltoYN(False), 'N')
+        self.assertEqual(tube.convert_from_bool_to_yn(True), 'Y')
+        self.assertEqual(tube.convert_from_bool_to_yn(False), 'N')
 
     def test_generateCommandString(self):
         tube = SmartNixieTubeDisplay.SmartNixieTube()
-        self.assertEqual('$-,N,N,000,000,000,000', tube.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,000', tube.generate_command_string())
 
-        tube2 = SmartNixieTubeDisplay.SmartNixieTube('9', leftdecimalpoint=False, rightdecimalpoint=False,
+        tube2 = SmartNixieTubeDisplay.SmartNixieTube('9', left_decimal_point=False, right_decimal_point=False,
                                                      brightness=128, red=0, green=255, blue=255)
-        self.assertEqual('$9,N,N,128,000,255,255', tube2.generateCommandString())
+        self.assertEqual('$9,N,N,128,000,255,255', tube2.generate_command_string())
 
-        tube3 = SmartNixieTubeDisplay.SmartNixieTube('5', leftdecimalpoint=False, rightdecimalpoint=False,
+        tube3 = SmartNixieTubeDisplay.SmartNixieTube('5', left_decimal_point=False, right_decimal_point=False,
                                                      brightness=28, red=0, green=10, blue=1)
-        self.assertEqual('$5,N,N,028,000,010,001', tube3.generateCommandString())
+        self.assertEqual('$5,N,N,028,000,010,001', tube3.generate_command_string())
 
     def test_LeftDecimalCommandString(self):
-        tube = SmartNixieTubeDisplay.SmartNixieTube(leftdecimalpoint=True)
-        self.assertEqual('$-,Y,N,000,000,000,000', tube.generateCommandString())
+        tube = SmartNixieTubeDisplay.SmartNixieTube(left_decimal_point=True)
+        self.assertEqual('$-,Y,N,000,000,000,000', tube.generate_command_string())
 
     def test_RightDecimalCommandString(self):
-        tube = SmartNixieTubeDisplay.SmartNixieTube(rightdecimalpoint=True)
-        self.assertEqual('$-,N,Y,000,000,000,000', tube.generateCommandString())
+        tube = SmartNixieTubeDisplay.SmartNixieTube(right_decimal_point=True)
+        self.assertEqual('$-,N,Y,000,000,000,000', tube.generate_command_string())
 
     def test_turnOff(self):
         # turn on anything, check that it's on
-        tube = SmartNixieTubeDisplay.SmartNixieTube('9', leftdecimalpoint=False, rightdecimalpoint=False,
+        tube = SmartNixieTubeDisplay.SmartNixieTube('9', left_decimal_point=False, right_decimal_point=False,
                                                     brightness=128, red=0, green=255, blue=255)
-        self.assertEqual('$9,N,N,128,000,255,255', tube.generateCommandString())
+        self.assertEqual('$9,N,N,128,000,255,255', tube.generate_command_string())
 
-        # test that the generate command string sends out zeros and a dash after turnOff()
-        tube.turnOff()
-        self.assertEqual('$-,N,N,000,000,000,000', tube.generateCommandString())
+        # test that the generate command string sends out zeros and a dash after turn_off()
+        tube.turn_off()
+        self.assertEqual('$-,N,N,000,000,000,000', tube.generate_command_string())
 
 
 class testSmartNixieTubeDisplay(unittest.TestCase):
@@ -215,8 +215,8 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
 
     def test_SmartNixieTube_initialisation(self):
         numberOfTubesInDisplay = 3
-        smartNixieTubeDisplay = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
-        self.assertEqual(smartNixieTubeDisplay.numberOfTubesInDisplay, numberOfTubesInDisplay)
+        smartNixieTubeDisplay = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
+        self.assertEqual(smartNixieTubeDisplay.number_of_tubes_in_display, numberOfTubesInDisplay)
 
     def test_SmartNixieTubeDisplay_initialisation_with_no_tubes(self):
         numberOfTubesInDisplay = 0
@@ -225,7 +225,7 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
             self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
-            self.assertEqual('numberOfTubesInDisplay must be greater than 0', str(e))
+            self.assertEqual('number_of_tubes_in_display must be greater than 0', str(e))
 
     def test_SmartNixieTubeDisplay_initialisation_with_negative_tubes(self):
         numberOfTubesInDisplay = -1
@@ -234,65 +234,65 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
             self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
-            self.assertEqual('numberOfTubesInDisplay must be greater than 0', str(e))
+            self.assertEqual('number_of_tubes_in_display must be greater than 0', str(e))
 
     def test_SmartNixieTubeDisplay_init_with_one_tube(self):
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         self.assertEqual(len(display.tubes), numberOfTubesInDisplay)
-        self.assertEqual('$-,N,N,000,000,000,000', display.tubes[0].generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,000', display.tubes[0].generate_command_string())
 
     def test_SmartNixieTubeDisplay_generateCommandString(self):
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
-        self.assertEqual('$-,N,N,000,000,000,000!', display.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,000!', display.generate_command_string())
 
     def test_SmartNixieTubeDisplay_init_with_two_tubes(self):
         numberOfTubesInDisplay = 2
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         self.assertEqual(len(display.tubes), numberOfTubesInDisplay)
         for tube in display.tubes:
-            self.assertEqual('$-,N,N,000,000,000,000', tube.generateCommandString())
+            self.assertEqual('$-,N,N,000,000,000,000', tube.generate_command_string())
 
     def test_SmartNixieTubeDisplay_2tubes_generateCommandString(self):
         numberOfTubesInDisplay = 2
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
-        self.assertEqual('$-,N,N,000,000,000,000$-,N,N,000,000,000,000!', display.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,000$-,N,N,000,000,000,000!', display.generate_command_string())
 
     def test_SmartNixieTubeDisplay_3tubes_generateCommandString(self):
         numberOfTubesInDisplay = 3
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         self.assertEqual('$-,N,N,000,000,000,000$-,N,N,000,000,000,000$-,N,N,000,000,000,000!',
-                         display.generateCommandString())
+                         display.generate_command_string())
 
     def test_SmartNixieTubeDisplay_3tubes_nonDefault_generateCommandString(self):
         numberOfTubesInDisplay = 3
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display.tubes[0].digit = '0'
         display.tubes[1].digit = '1'
         display.tubes[2].digit = '2'
 
         self.assertEqual('$2,N,N,000,000,000,000$1,N,N,000,000,000,000$0,N,N,000,000,000,000!',
-                         display.generateCommandString())
+                         display.generate_command_string())
 
     def test_SmartNixieTubeDisplay_set_display_numbers_out_of_bounds(self):
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         try:
-            self.assertRaises(ValueError, display.setDisplayNumber(-1))  # this should fail
+            self.assertRaises(ValueError, display.set_display_number(-1))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual(str(e), 'Display number must be positive')
 
         try:
-            self.assertRaises(ValueError, display.setDisplayNumber(10))  # this should fail (too many digits)
+            self.assertRaises(ValueError, display.set_display_number(10))  # this should fail (too many digits)
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual(str(e), 'Not enough tubes to display all digits')
@@ -300,105 +300,105 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
     def test_SmartNixieTubeDisplay_set_one_tube_display_numbers(self):
         # set one tube
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
-        display.setDisplayNumber(9)
-        self.assertEqual('$9,N,N,000,000,000,000!', display.generateCommandString())
+        display.set_display_number(9)
+        self.assertEqual('$9,N,N,000,000,000,000!', display.generate_command_string())
 
     def test_SmartNixieTubeDisplay_set_two_tube_display_numbers(self):
         # set two tubes
         numberOfTubesInDisplay = 2
-        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
-        display2.setDisplayNumber(9)
-        self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000!', display2.generateCommandString())
+        display2.set_display_number(9)
+        self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000!', display2.generate_command_string())
 
-        display2.setDisplayNumber(90)
-        self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000!', display2.generateCommandString())
+        display2.set_display_number(90)
+        self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000!', display2.generate_command_string())
 
-        display2.setDisplayNumber(99)
-        self.assertEqual('$9,N,N,000,000,000,000$9,N,N,000,000,000,000!', display2.generateCommandString())
+        display2.set_display_number(99)
+        self.assertEqual('$9,N,N,000,000,000,000$9,N,N,000,000,000,000!', display2.generate_command_string())
 
     def test_SmartNixieTubeDisplay_set_three_tube_display_numbers(self):
         # set three tubes
         numberOfTubesInDisplay = 3
-        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
-        display3.setDisplayNumber(9)
+        display3.set_display_number(9)
         self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000$0,N,N,000,000,000,000!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
-        display3.setDisplayNumber(99)
+        display3.set_display_number(99)
         self.assertEqual('$9,N,N,000,000,000,000$9,N,N,000,000,000,000$0,N,N,000,000,000,000!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
-        display3.setDisplayNumber(909)
+        display3.set_display_number(909)
         self.assertEqual('$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
-        display3.setDisplayNumber(990)
+        display3.set_display_number(990)
         self.assertEqual('$0,N,N,000,000,000,000$9,N,N,000,000,000,000$9,N,N,000,000,000,000!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
     def test_init_display_brightness_out_of_range(self):
         try:
             self.assertRaises(ValueError,
-                              SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=-1,
-                                                    serialPortName=self.inputPort))  # this should fail
+                              SmartNixieTubeDisplay(number_of_tubes_in_display=1, brightness=-1,
+                                                    serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Brightness must be between 0-255', str(e))
 
         try:
             self.assertRaises(ValueError,
-                              SmartNixieTubeDisplay(numberOfTubesInDisplay=1, brightness=256,
-                                                    serialPortName=self.inputPort))  # this should fail
+                              SmartNixieTubeDisplay(number_of_tubes_in_display=1, brightness=256,
+                                                    serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Brightness must be between 0-255', str(e))
 
     def test_init_display_red_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, red=-1,
-                                                                serialPortName=self.inputPort))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(number_of_tubes_in_display=1, red=-1,
+                                                                serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Red must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, red=256,
-                                                                serialPortName=self.inputPort))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(number_of_tubes_in_display=1, red=256,
+                                                                serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Red must be between 0-255', str(e))
 
     def test_init_display_blue_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, blue=-1,
-                                                                serialPortName=self.inputPort))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(number_of_tubes_in_display=1, blue=-1,
+                                                                serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Blue must be between 0-255', str(e))
 
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, blue=256,
-                                                                serialPortName=self.inputPort))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(number_of_tubes_in_display=1, blue=256,
+                                                                serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Blue must be between 0-255', str(e))
 
     def test_init_display_green_out_of_range(self):
         try:
-            self.assertRaises(ValueError, SmartNixieTubeDisplay(numberOfTubesInDisplay=1, green=-1,
-                                                                serialPortName=self.inputPort))  # this should fail
+            self.assertRaises(ValueError, SmartNixieTubeDisplay(number_of_tubes_in_display=1, green=-1,
+                                                                serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Green must be between 0-255', str(e))
 
         try:
             self.assertRaises(ValueError,
-                              SmartNixieTubeDisplay(numberOfTubesInDisplay=1, green=256,
-                                                    serialPortName=self.inputPort))  # this should fail
+                              SmartNixieTubeDisplay(number_of_tubes_in_display=1, green=256,
+                                                    serial_port_name=self.inputPort))  # this should fail
             self.fail("Didn't raise ValueError")
         except ValueError as e:
             self.assertEqual('Green must be between 0-255', str(e))
@@ -406,95 +406,95 @@ class testSmartNixieTubeDisplay(unittest.TestCase):
     def test_init_display_brightness(self):
         # set one tube
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display.brightness = 128
-        self.assertEqual('$-,N,N,128,000,000,000!', display.generateCommandString())
+        self.assertEqual('$-,N,N,128,000,000,000!', display.generate_command_string())
 
         # set two tubes
         numberOfTubesInDisplay = 2
-        tube_display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        tube_display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
         display2 = tube_display
 
         display2.brightness = 128
-        self.assertEqual('$-,N,N,128,000,000,000$-,N,N,128,000,000,000!', display2.generateCommandString())
+        self.assertEqual('$-,N,N,128,000,000,000$-,N,N,128,000,000,000!', display2.generate_command_string())
 
         # set three tubes
         numberOfTubesInDisplay = 3
-        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display3.brightness = 128
         self.assertEqual('$-,N,N,128,000,000,000$-,N,N,128,000,000,000$-,N,N,128,000,000,000!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
     def test_init_display_red(self):
         # set one tube
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display.red = 128
-        self.assertEqual('$-,N,N,000,128,000,000!', display.generateCommandString())
+        self.assertEqual('$-,N,N,000,128,000,000!', display.generate_command_string())
 
         # set two tubes
         numberOfTubesInDisplay = 2
-        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display2.red = 128
-        self.assertEqual('$-,N,N,000,128,000,000$-,N,N,000,128,000,000!', display2.generateCommandString())
+        self.assertEqual('$-,N,N,000,128,000,000$-,N,N,000,128,000,000!', display2.generate_command_string())
 
         # set three tubes
         numberOfTubesInDisplay = 3
-        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display3.red = 128
         self.assertEqual('$-,N,N,000,128,000,000$-,N,N,000,128,000,000$-,N,N,000,128,000,000!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
     def test_init_display_green(self):
         # set one tube
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display.green = 128
-        self.assertEqual('$-,N,N,000,000,128,000!', display.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,128,000!', display.generate_command_string())
 
         # set two tubes
         numberOfTubesInDisplay = 2
-        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display2.green = 128
-        self.assertEqual('$-,N,N,000,000,128,000$-,N,N,000,000,128,000!', display2.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,128,000$-,N,N,000,000,128,000!', display2.generate_command_string())
 
         # set three tubes
         numberOfTubesInDisplay = 3
-        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display3.green = 128
         self.assertEqual('$-,N,N,000,000,128,000$-,N,N,000,000,128,000$-,N,N,000,000,128,000!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
     def test_init_display_blue(self):
         # set one tube
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display.blue = 128
-        self.assertEqual('$-,N,N,000,000,000,128!', display.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,128!', display.generate_command_string())
 
         # set two tubes
         numberOfTubesInDisplay = 2
-        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display2 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display2.blue = 128
-        self.assertEqual('$-,N,N,000,000,000,128$-,N,N,000,000,000,128!', display2.generateCommandString())
+        self.assertEqual('$-,N,N,000,000,000,128$-,N,N,000,000,000,128!', display2.generate_command_string())
 
         # set three tubes
         numberOfTubesInDisplay = 3
-        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.inputPort)
+        display3 = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.inputPort)
 
         display3.blue = 128
         self.assertEqual('$-,N,N,000,000,000,128$-,N,N,000,000,000,128$-,N,N,000,000,000,128!',
-                         display3.generateCommandString())
+                         display3.generate_command_string())
 
 
 class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
@@ -659,16 +659,16 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
     def test_init_serialPort(self):
         try:
-            self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serialPortName=-1), shell=True)  # this should fail
+            self.assertRaises(TypeError, SmartNixieTubeDisplay(1, serial_port_name=-1), shell=True)  # this should fail
             self.fail("Didn't raise TypeError")
         except TypeError as e:
             self.assertEqual('serialPort must be of type str', str(e))
 
     def test_sendCommand_1tubes_nonDefault(self):
         numberOfTubesInDisplay = 1
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.outputPort)
 
-        display.setDisplayNumber(9)
+        display.set_display_number(9)
         # this should equal: '$9,N,N,000,000,000,000!'
 
         readFromPort = serial.Serial(
@@ -679,7 +679,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             stopbits=serial.STOPBITS_ONE
         )
 
-        display.sendCommand()
+        display.send_command()
 
         if readFromPort.isOpen():
             last_received = b''
@@ -699,9 +699,9 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
     def test_sendCommand_2tubes_nonDefault(self):
         numberOfTubesInDisplay = 2
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.outputPort)
 
-        display.setDisplayNumber(90)
+        display.set_display_number(90)
         # this should equal: '$0,N,N,000,000,000,000$9,N,N,000,000,000,000!'
 
         readFromPort = serial.Serial(
@@ -712,7 +712,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             stopbits=serial.STOPBITS_ONE
         )
 
-        display.sendCommand()
+        display.send_command()
 
         if readFromPort.isOpen():
             last_received = b''
@@ -732,9 +732,9 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
 
     def test_sendCommand_3tubes_nonDefault(self):
         numberOfTubesInDisplay = 3
-        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serialPortName=self.outputPort)
+        display = SmartNixieTubeDisplay(numberOfTubesInDisplay, serial_port_name=self.outputPort)
 
-        display.setDisplayNumber(909)
+        display.set_display_number(909)
         # this should equal: '$9,N,N,000,000,000,000$0,N,N,000,000,000,000$9,N,N,000,000,000,000!'
 
         readFromPort = serial.Serial(
@@ -745,7 +745,7 @@ class testSmartNixieTubeDisplaySerialConnections(unittest.TestCase):
             stopbits=serial.STOPBITS_ONE
         )
 
-        display.sendCommand()
+        display.send_command()
 
         if readFromPort.isOpen():
             last_received = b''
