@@ -6,7 +6,7 @@ from os import remove
 from sys import platform as _platform
 
 try:
-    from smartnixietube.SmartNixieTube import SmartNixieTubeDisplay
+    from smartnixietube.SmartNixieTubeDisplay import SmartNixieTubeDisplay
 except ImportError as e:
     import sys
     import os
@@ -15,7 +15,7 @@ except ImportError as e:
     SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
     sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-    from smartnixietube.SmartNixieTube import SmartNixieTubeDisplay
+    from smartnixietube.SmartNixieTubeDisplay import SmartNixieTubeDisplay
 
 __author__ = 'Nathan Waddington'
 __email__ = 'nathan_waddington@alumni.sfu.ca'
